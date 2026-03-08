@@ -178,48 +178,6 @@ Como o sistema exige auditoria e soft delete, faz sentido usar um banco que ofer
 
 ---
 
-## Por que o streaming não definiu o banco
-
-O streaming é requisito importante da experiência do usuário, mas ele não é o principal critério de escolha do banco transacional.
-
-Streaming pertence principalmente à camada de aplicação e interface.
-
-A escolha do banco foi guiada pelo momento mais crítico do sistema: **confirmação, execução e auditoria**.
-
----
-
-## Por que não MongoDB como banco principal
-
-MongoDB seria confortável para armazenar:
-
-- mensagens da conversa;
-- drafts semiestruturados;
-- payloads flexíveis.
-
-Ainda assim, nesta POC, o ponto mais importante não é só guardar documentos flexíveis, mas preservar coerência entre múltiplas entidades relacionadas.
-
-Quando confirmação, execução, auditoria e concorrência viram centro do problema, o PostgreSQL tende a aderir melhor como **source of truth**.
-
-MongoDB continua possível como apoio em cenários complementares, mas não foi escolhido como banco principal da POC.
-
----
-
-## Por que não DynamoDB como banco principal
-
-DynamoDB é forte em escala distribuída e acesso orientado a chave, mas não é a escolha mais natural para esta POC como primeira decisão principal.
-
-O sistema precisa priorizar:
-
-- validação transacional;
-- comparação entre estado atual e proposto;
-- histórico auditável;
-- múltiplas entidades relacionadas;
-- confirmação explícita com consistência.
-
-Na fase atual da POC, isso torna PostgreSQL uma escolha mais aderente.
-
----
-
 ## Resumo executivo
 
 O PostgreSQL foi escolhido como banco principal porque o núcleo da POC exige:
