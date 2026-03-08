@@ -192,3 +192,135 @@ O PostgreSQL foi escolhido como banco principal porque o núcleo da POC exige:
 
 Em síntese, a escolha do banco foi orientada por **segurança operacional, rastreabilidade e consistência**, e não apenas por flexibilidade documental ou menor esforço inicial de modelagem.
 
+
+---
+
+## Alinhamento com o modelo de relacionamento de entidades
+
+Com a evolução do projeto, a justificativa do banco também precisa ser lida à luz do modelo relacional definido para a POC.
+
+O banco não precisa persistir apenas a entidade `product`. Ele precisa suportar, com consistência, o relacionamento entre:
+
+- `actor`;
+- `conversation_session`;
+- `conversation_message`;
+- `operation_draft`;
+- `operation_draft_item`;
+- `draft_decision`;
+- `operation_execution`;
+- `audit_event`;
+- `product`.
+
+Essa modelagem mostra por que um banco relacional continua sendo a melhor escolha: a POC depende muito mais de encadeamento confiável entre registros do que de flexibilidade indiscriminada de documentos.
+
+### Relações críticas que o banco precisa sustentar
+
+Alguns vínculos são especialmente sensíveis:
+
+- uma sessão contém várias mensagens;
+- uma sessão pode originar múltiplos drafts em momentos diferentes;
+- um draft contém um ou mais itens;
+- uma decisão explícita autoriza ou rejeita o draft;
+- uma execução só pode existir a partir de um draft válido e confirmado;
+- a auditoria precisa manter o vínculo entre mensagem, draft, decisão, execução e produto afetado.
+
+Esse tipo de grafo operacional auditável favorece modelagem relacional com chaves, índices e constraints bem definidos.
+
+---
+
+## Impacto direto no desenho físico
+
+A escolha por PostgreSQL permite expressar com clareza requisitos como:
+
+- foreign keys entre draft, decisão, execução e auditoria;
+- índices por status e timestamps;
+- versionamento otimista do produto;
+- soft delete consistente;
+- unicidade de identificadores operacionais;
+- consulta auditável por sessão, por ator, por draft ou por produto.
+
+Além disso, como a POC exige bloqueio de execução implícita, o banco precisa ajudar a impedir estados ilegais do fluxo. Isso pode ser reforçado por:
+
+- constraints de nulidade e obrigatoriedade;
+- check constraints para status válidos;
+- unique constraints para evitar dupla decisão ou dupla execução indevida;
+- transações envolvendo produto, execução e auditoria.
+
+---
+
+## Por que esse modelo conversa bem com a camada `service` do Nest
+
+A modelagem relacional escolhida também combina com a divisão de responsabilidades do backend.
+
+Na POC, a controller do Nest deve cuidar do transporte, da entrada e da saída. Já a regra de negócio deve ficar nos services. Isso significa que o banco não deve ser manipulado diretamente pela controller.
+
+O service precisa poder coordenar, em uma mesma unidade de trabalho:
+
+1. leitura do estado atual;
+2. validação do draft;
+3. verificação de confirmação explícita;
+4. atualização do produto;
+5. gravação da execução;
+6. emissão da auditoria.
+
+PostgreSQL é adequado justamente porque sustenta esse tipo de unidade transacional com integridade forte.
+
+---
+
+## Índices e constraints recomendados
+
+Além da escolha do banco em si, a POC se beneficia de um conjunto mínimo de decisões estruturais:
+
+### Em `product`
+
+- índice por `sku`, quando existir;
+- índice por `deleted_at` para consultas de soft delete;
+- campo de versão para controle de concorrência;
+- índices por status ou disponibilidade, se fizer sentido ao domínio.
+
+### Em `operation_draft`
+
+- índice por `session_id`;
+- índice por `status`;
+- índice por `created_at`;
+- unicidade opcional para idempotency key, se adotada.
+
+### Em `operation_execution`
+
+- índice por `draft_id`;
+- índice por `executed_at`;
+- índice por `status`;
+- restrição para evitar múltiplas execuções finais indevidas do mesmo draft.
+
+### Em `audit_event`
+
+- índice por `entity_type`, `entity_id`;
+- índice por `session_id`;
+- índice por `occurred_at`;
+- estratégia para consulta cronológica da trilha.
+
+Essas definições não substituem a modelagem funcional, mas mostram que a decisão pelo PostgreSQL não é abstrata: ela se materializa em mecanismos concretos de integridade e observabilidade.
+
+---
+
+## Por que não centralizar tudo em JSON sem fronteiras claras
+
+Mesmo que PostgreSQL permita colunas JSONB, a POC não deve ser desenhada como um sistema em que tudo vira um grande documento sem estrutura.
+
+JSONB pode ser útil para:
+
+- payload bruto interpretado pela IA;
+- metadados complementares de auditoria;
+- snapshots do estado proposto.
+
+Mas o fluxo crítico do produto depende de relações explícitas. Por isso, o centro do modelo deve continuar relacional, usando JSONB apenas como complemento, não como substituto da modelagem.
+
+---
+
+## Conclusão complementar
+
+A escolha do PostgreSQL continua correta e fica ainda mais justificada quando o modelo de entidades é explicitado.
+
+A POC exige que o banco sustente não só dados de produto, mas também o encadeamento íntegro entre conversa, draft, decisão, execução e auditoria. Além disso, a separação de responsabilidades no Nest reforça a necessidade de transações coordenadas na camada service, e não lógica dispersa na controller.
+
+Em síntese, PostgreSQL foi escolhido porque oferece a melhor base para um sistema que precisa ser conversacional na entrada, mas estritamente confiável na persistência e na execução.

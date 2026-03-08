@@ -278,3 +278,159 @@ Por isso:
 
 Em síntese, esses padrões foram escolhidos porque ajudam a transformar um copiloto conversacional em um sistema previsível, seguro e evolutivo, sem permitir execução implícita a partir de texto livre.
 
+
+---
+
+## Alinhamento dos padrões com o modelo de entidades
+
+Com a modelagem relacional consolidada, os padrões escolhidos ficam ainda mais justificáveis.
+
+A POC não precisa apenas “fazer CRUD”. Ela precisa coordenar um fluxo composto por:
+
+- sessão;
+- mensagens;
+- draft;
+- itens do draft;
+- decisão explícita;
+- execução;
+- auditoria;
+- produto afetado.
+
+Esse encadeamento exige padrões que organizem o comportamento do sistema em torno de uma sequência controlada de estados e ações, em vez de misturar tudo em endpoints com lógica procedural difusa.
+
+---
+
+## Como os padrões se distribuem nas camadas do Nest
+
+A definição de responsabilidades do Nest ajuda a aplicar os padrões com mais precisão.
+
+### `controller` como borda de transporte
+
+A controller deve receber entrada HTTP ou SSE, delegar para a aplicação e devolver a resposta adequada. Ela não deve decidir regra de confirmação, validação de draft ou execução de operação.
+
+### `service` como orquestração de regra de negócio
+
+A service deve concentrar a regra de negócio e aplicar os padrões principais da POC. Em outras palavras, é dentro dos services que Command, Strategy, State Machine e Pipeline se articulam de verdade.
+
+### `repository` e adapters como infraestrutura
+
+Repositories e adapters implementam persistência, integração com IA, streaming e outros detalhes externos sem contaminar o núcleo do fluxo.
+
+Essa distribuição é importante porque evita aplicar padrões no lugar errado. O objetivo não é “usar pattern por usar”, mas posicioná-lo na camada que realmente precisa dele.
+
+---
+
+## Releitura dos padrões à luz da camada service
+
+### Command na camada service
+
+O Command ganha força porque o service precisa transformar a solicitação em um objeto estruturado que sobreviva ao texto livre.
+
+Não basta a controller receber um body ou uma mensagem. O service precisa converter isso em uma representação explícita da ação, passível de persistência, revisão e comparação com o estado atual.
+
+### Strategy na camada service
+
+A seleção da estratégia correta também deve ocorrer no service, e não na controller.
+
+A controller pode identificar o endpoint ou o canal, mas não deve decidir a regra operacional. Quem escolhe a estratégia de create, read, update ou delete deve ser a camada de aplicação, com base na intenção estruturada e no contexto do draft.
+
+### State Machine no ciclo de vida do draft
+
+A State Machine faz ainda mais sentido quando observamos as entidades persistidas.
+
+Um draft pode transitar por estados como:
+
+- recebido;
+- interpretado;
+- estruturado;
+- em revisão;
+- aguardando confirmação;
+- confirmado;
+- rejeitado;
+- executado;
+- falho.
+
+Esses estados não são apenas abstrações em memória. Eles representam a própria semântica da POC e podem ser persistidos ou auditados. Por isso, modelá-los explicitamente reduz ambiguidade.
+
+### Pipeline na orquestração do fluxo
+
+O Pipeline também se torna mais natural quando visto pela perspectiva do service. O caso de uso pode ser lido como uma cadeia de etapas:
+
+1. receber a solicitação;
+2. interpretar a intenção;
+3. estruturar o command;
+4. validar o draft;
+5. enriquecer a proposta;
+6. apresentar para revisão;
+7. receber decisão;
+8. executar;
+9. auditar.
+
+Esse pipeline não precisa ser necessariamente implementado com uma biblioteca específica. O ponto é preservar a linearidade explícita do fluxo.
+
+### Adapter nas bordas técnicas
+
+O Adapter continua sendo essencial para:
+
+- provider de LLM;
+- persistência em PostgreSQL;
+- emissão de streaming;
+- integrações futuras.
+
+Ele permite que a camada service trabalhe com portas e contratos, não com SDKs ou detalhes de banco.
+
+---
+
+## Padrões complementares que passam a fazer sentido
+
+Sem mudar a decisão principal, a maturidade do desenho também sugere dois complementos úteis.
+
+### Repository
+
+Embora muitas vezes seja tratado como padrão de persistência e não listado entre os cinco principais, aqui ele ganha valor claro.
+
+Como a controller não deve falar direto com o banco e a service precisa operar sobre abstrações, o **Repository** ajuda a encapsular consultas e operações sobre:
+
+- produtos;
+- drafts;
+- decisões;
+- execuções;
+- auditoria.
+
+### Unit of Work ou coordenação transacional explícita
+
+Mesmo que não seja formalizado como um pattern isolado no documento principal, a POC se beneficia de uma coordenação transacional clara.
+
+Ao confirmar uma operação, o service pode precisar executar várias escritas relacionadas dentro de uma mesma unidade lógica. Essa necessidade conversa fortemente com a escolha do PostgreSQL e com a separação entre aplicação e infraestrutura.
+
+---
+
+## Anti-padrões que a POC deve evitar
+
+A definição atual do projeto também deixa mais claro o que não deve ser feito.
+
+### Controller anêmica virando service disfarçada
+
+Colocar regras de negócio diretamente na controller apenas porque “é um projeto pequeno” quebraria a separação central da POC.
+
+### Service monolítica com muitos `if/else`
+
+Ignorar Strategy e concentrar toda a lógica operacional em um único bloco condicional aumentaria complexidade e reduziria previsibilidade.
+
+### Execução baseada em texto livre
+
+Pular Command e executar diretamente a partir da fala do usuário destruiria a garantia de proposta estruturada e confirmação explícita.
+
+### Persistência acoplada ao fluxo conversacional
+
+Misturar SDK de banco, chamadas a provider de IA e regra de negócio no mesmo ponto tornaria o sistema difícil de testar, evoluir e auditar.
+
+---
+
+## Conclusão complementar
+
+Os padrões escolhidos continuam corretos e ficam mais robustos quando observados junto com o modelo de entidades e com a definição explícita das camadas do Nest.
+
+A controller deve adaptar transporte. A service deve concentrar regra de negócio. Repositories e adapters devem encapsular persistência e integrações. Dentro dessa distribuição, Command, Strategy, State Machine, Pipeline e Adapter deixam de ser conceitos abstratos e passam a estruturar o fluxo real da POC.
+
+Em síntese, os padrões foram escolhidos porque ajudam a sustentar um sistema em que a conversa é natural, mas a operação é formal, validada, confirmada e auditável.

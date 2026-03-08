@@ -255,3 +255,114 @@ Por isso, foi adotada uma arquitetura **hexagonal/modular**, na qual:
 
 Em síntese, a arquitetura foi escolhida para garantir que a aplicação seja natural no uso, mas rigorosa no controle operacional.
 
+
+---
+
+## Alinhamento com o modelo de entidades e com a fronteira das camadas do Nest
+
+Com a consolidação do modelo de relacionamento de entidades da POC, a arquitetura passa a ficar ainda mais explícita.
+
+O sistema não lida apenas com uma entidade `product` isolada. Ele precisa coordenar, em um mesmo fluxo controlado, o encadeamento entre:
+
+- ator que interage com o sistema;
+- sessão conversacional;
+- mensagens trocadas;
+- draft operacional;
+- itens do draft;
+- decisão explícita do usuário;
+- execução da operação;
+- evento de auditoria.
+
+Esse encadeamento confirma que a arquitetura não pode ser centrada em controllers “inteligentes” ou em acesso direto do transporte HTTP/SSE ao banco. O desenho correto exige um backend em que o Nest funcione como composição de fronteiras bem definidas.
+
+### Papel da `controller` no Nest
+
+Na POC, a **controller** não deve concentrar regra de negócio.
+
+A controller existe para cumprir responsabilidades de entrada e saída, como:
+
+- receber requisições HTTP;
+- expor endpoints REST;
+- abrir ou coordenar streaming por SSE quando aplicável;
+- validar formato de entrada em nível de transporte;
+- delegar o caso de uso para a camada apropriada;
+- devolver resposta, status e contrato adequados.
+
+Ou seja, a controller deve ser uma camada de adaptação de transporte, e não o lugar onde ficam regras de confirmação, rastreabilidade, soft delete ou consistência entre draft e execução.
+
+### Papel da `service` no Nest
+
+Na POC, a **service** é a camada onde deve ficar a regra de negócio e a orquestração de caso de uso.
+
+É nela que devem viver responsabilidades como:
+
+- interpretar o tipo de intenção;
+- selecionar a estratégia de operação;
+- estruturar a proposta;
+- validar obrigatórios;
+- conferir estado atual versus estado proposto;
+- verificar confirmação explícita;
+- coordenar execução transacional;
+- emitir auditoria;
+- garantir que o executado corresponda ao draft aprovado.
+
+Em termos práticos, o Nest entra como shell de aplicação: controller adaptando transporte, service coordenando regra de negócio, e adapters/repositories isolando infraestrutura.
+
+### Papel de `repository` e adapters
+
+A camada de persistência não deve ser acessada diretamente pela controller.
+
+O acesso a dados deve acontecer por repositories e adapters de infraestrutura, acionados a partir dos services, para que o domínio permaneça protegido de decisões de banco, provider de IA ou mecanismo de streaming.
+
+Isso reforça a separação que já estava implícita na arquitetura hexagonal/modular:
+
+- **controller**: borda de entrada/saída;
+- **service**: caso de uso e regra de negócio;
+- **repository/adapter**: infraestrutura e integração;
+- **domínio**: invariantes e validações centrais.
+
+---
+
+## Desdobramento arquitetural por módulo
+
+A partir dessa leitura, a decomposição arquitetural mais coerente para o backend é:
+
+- `conversation`: entrada conversacional, parsing da solicitação e vínculo com sessão e mensagens;
+- `draft`: construção, manutenção, revisão e atualização do draft;
+- `product`: regras do agregado de produto;
+- `execution`: aplicação segura da operação confirmada;
+- `audit`: rastreabilidade ponta a ponta;
+- `shared`: contratos e abstrações comuns;
+- `infra`: persistência, IA, streaming e observabilidade.
+
+Essa separação modular não é apenas organizacional. Ela existe porque os requisitos do EPIC pedem um fluxo em que interpretação, proposta, revisão, confirmação e execução sejam etapas distintas e auditáveis.
+
+---
+
+## Efeito direto dessa arquitetura sobre a experiência conversacional
+
+A interface pode transmitir sensação de fluidez e progressão em tempo real, mas essa fluidez não deve colapsar as fronteiras do backend.
+
+Em outras palavras:
+
+- o streaming pode ser progressivo na experiência;
+- a resposta pode ser incremental na interface;
+- mas a execução continua bloqueada até existir proposta estruturada, validação e confirmação explícita.
+
+Isso evita que a camada conversacional pareça “autônoma” no sentido operacional. O sistema pode conversar de forma natural, mas opera de forma estrita e controlada.
+
+---
+
+## Conclusão complementar
+
+Com a definição do modelo de entidades e da responsabilidade explícita das camadas do Nest, a decisão arquitetural fica ainda mais sólida.
+
+A arquitetura hexagonal/modular continua sendo a mais adequada porque:
+
+- preserva a separação entre conversa e operação;
+- protege o domínio do transporte e da infraestrutura;
+- acomoda o modelo relacional orientado a draft, decisão, execução e auditoria;
+- permite que a controller adapte HTTP/SSE sem capturar regra de negócio;
+- concentra nos services a orquestração real do fluxo operacional.
+
+Em síntese, a arquitetura não foi escolhida apenas para “organizar melhor o código”, mas para tornar possível um produto que precisa ser simultaneamente conversacional na interface e rigoroso na execução.
