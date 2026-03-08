@@ -82,11 +82,15 @@ O banco precisa suportar mecanismos para evitar:
 
 O sistema adota como regra que não haverá delete físico.
 
-Toda deleção deve preservar histórico por meio de campos como:
+Toda deleção deve preservar histórico por meio de um conjunto mínimo coerente com o modelo relacional da POC:
 
 - `deleted_at`;
 - `deleted_by`;
-- `status`.
+- `version`.
+
+Esse conjunto permite preservar rastreabilidade, manter integridade histórica e sustentar controle de concorrência sobre `product`.
+
+Um campo `status` pode existir como atributo complementar de negócio, quando fizer sentido ao domínio, mas não compõe o contrato mínimo de soft delete desta POC.
 
 Essa abordagem funciona muito bem com modelagem relacional, constraints e índices bem definidos.
 
@@ -294,10 +298,15 @@ Além da escolha do banco em si, a POC se beneficia de um conjunto mínimo de de
 
 ### Em `audit_event`
 
-- índice por `entity_type`, `entity_id`;
 - índice por `session_id`;
 - índice por `occurred_at`;
-- estratégia para consulta cronológica da trilha.
+- índice por `event_type`;
+- índices compostos por entidades referenciadas, conforme a estratégia física adotada;
+- modelagem com referências explícitas, quando aplicável, para `message_id`, `draft_id`, `decision_id`, `execution_id`, `product_id` e `actor_id`.
+
+Essa estratégia favorece a rastreabilidade nativa do fluxo da POC, conectando conversa, proposta, decisão, execução e produto afetado.
+
+Uma abordagem genérica por `entity_type` e `entity_id` pode existir apenas como mecanismo complementar de consulta, não como modelagem principal da auditoria desta POC.
 
 Essas definições não substituem a modelagem funcional, mas mostram que a decisão pelo PostgreSQL não é abstrata: ela se materializa em mecanismos concretos de integridade e observabilidade.
 
