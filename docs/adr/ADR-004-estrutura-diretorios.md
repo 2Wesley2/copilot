@@ -153,10 +153,8 @@ copilot/
 │     ├─ operation-execution-model.md
 │     ├─ audit-event-model.md
 │     ├─ product-model.md
-│     ├─ ADR-005-relacionamento-entidades.md
 │     └─ delete-policy.md
 │
-├─ .github/
 │  ├─ workflows/
 │  ├─ ISSUE_TEMPLATE/
 │  └─ pull_request_template.md
