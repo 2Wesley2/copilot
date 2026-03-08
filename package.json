@@ -1,0 +1,39 @@
+{
+  "name": "copilot",
+  "private": true,
+  "packageManager": "pnpm@10.31.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "typecheck": "turbo run typecheck",
+    "lint": "pnpm exec eslint . --max-warnings=0",
+    "lint:fix": "pnpm exec eslint . --fix",
+    "lint:api": "pnpm exec eslint apps/api packages/contracts packages/shared --max-warnings=0",
+    "lint:web": "pnpm exec eslint apps/web packages/contracts packages/shared --max-warnings=0",
+    "format": "pnpm exec prettier . --check",
+    "format:write": "pnpm exec prettier . --write",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.3",
+    "@next/eslint-plugin-next": "16.1.6",
+    "@types/node": "25.3.5",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.3",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-import-resolver-typescript": "4.4.4",
+    "eslint-plugin-boundaries": "5.4.0",
+    "eslint-plugin-import-x": "4.16.1",
+    "eslint-plugin-react-hooks": "7.0.1",
+    "eslint-plugin-simple-import-sort": "12.1.1",
+    "eslint-plugin-sonarjs": "4.0.1",
+    "eslint-plugin-unicorn": "63.0.0",
+    "eslint-plugin-unused-imports": "4.4.1",
+    "globals": "17.4.0",
+    "prettier": "3.8.1",
+    "turbo": "2.8.14",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.56.1"
+  }
+}

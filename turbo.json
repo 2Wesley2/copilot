@@ -1,0 +1,59 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "turbo.json",
+    "eslint.config.mjs",
+    "prettier.config.mjs",
+    "tsconfig.json",
+    "tsconfig.base.json",
+    "apps/*/tsconfig.json",
+    "packages/*/tsconfig.json"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["dist/**", ".next/**", "build/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^dev"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "eslint.config.mjs",
+        "prettier.config.mjs"
+      ],
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "tsconfig.json",
+        "tsconfig.base.json",
+        "apps/*/tsconfig.json",
+        "packages/*/tsconfig.json"
+      ],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["build", "^build"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["coverage/**"]
+    },
+    "format": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "prettier.config.mjs"
+      ],
+      "outputs": []
+    }
+  }
+}
