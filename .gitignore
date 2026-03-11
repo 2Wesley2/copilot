@@ -1,8 +1,17 @@
 # Nestjs specific
-/dist
+dist/
 node_modules/
-/build
-/tmp
+build/
+tmp/
+
+# IDE specific
+.cursor/
+.vscode/
+
+# Build specific
+*.tsbuildinfo
+.next/
+.turbo/
 
 # Logs
 logs

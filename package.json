@@ -8,11 +8,12 @@
     "typecheck": "turbo run typecheck",
     "lint": "pnpm exec eslint . --max-warnings=0",
     "lint:fix": "pnpm exec eslint . --fix",
-    "lint:api": "pnpm exec eslint apps/api packages/contracts packages/shared --max-warnings=0",
-    "lint:web": "pnpm exec eslint apps/web packages/contracts packages/shared --max-warnings=0",
+    "lint:api": "pnpm --filter @copilot/api lint",
+    "lint:web": "pnpm --filter @copilot/web lint",
     "format": "pnpm exec prettier . --check",
     "format:write": "pnpm exec prettier . --write",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "db:seed": "pnpm --filter @copilot/api db:seed"
   },
   "devDependencies": {
     "@eslint/js": "9.39.3",

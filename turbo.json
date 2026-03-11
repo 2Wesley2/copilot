@@ -10,7 +10,7 @@
     "tsconfig.json",
     "tsconfig.base.json",
     "apps/*/tsconfig.json",
-    "packages/*/tsconfig.json"
+    "apps/packages/*/tsconfig.json"
   ],
   "tasks": {
     "build": {
@@ -25,11 +25,7 @@
     },
     "lint": {
       "dependsOn": ["^lint"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "eslint.config.mjs",
-        "prettier.config.mjs"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "eslint.config.mjs", "prettier.config.mjs"],
       "outputs": []
     },
     "typecheck": {
@@ -39,7 +35,7 @@
         "tsconfig.json",
         "tsconfig.base.json",
         "apps/*/tsconfig.json",
-        "packages/*/tsconfig.json"
+        "apps/packages/*/tsconfig.json"
       ],
       "outputs": []
     },
@@ -49,10 +45,7 @@
       "outputs": ["coverage/**"]
     },
     "format": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "prettier.config.mjs"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "prettier.config.mjs"],
       "outputs": []
     }
   }

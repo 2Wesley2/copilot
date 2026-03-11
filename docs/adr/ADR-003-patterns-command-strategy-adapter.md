@@ -278,7 +278,6 @@ Por isso:
 
 Em síntese, esses padrões foram escolhidos porque ajudam a transformar um copiloto conversacional em um sistema previsível, seguro e evolutivo, sem permitir execução implícita a partir de texto livre.
 
-
 ---
 
 ## Alinhamento dos padrões com o modelo de entidades
@@ -373,7 +372,7 @@ Esse pipeline não precisa ser necessariamente implementado com uma biblioteca e
 O Adapter continua sendo essencial para:
 
 - provider de LLM;
-- persistência em PostgreSQL;
+- persistência em MongoDB com Mongoose;
 - emissão de streaming;
 - integrações futuras.
 
@@ -401,7 +400,7 @@ Como a controller não deve falar direto com o banco e a service precisa operar 
 
 Mesmo que não seja formalizado como um pattern isolado no documento principal, a POC se beneficia de uma coordenação transacional clara.
 
-Ao confirmar uma operação, o service pode precisar executar várias escritas relacionadas dentro de uma mesma unidade lógica. Essa necessidade conversa fortemente com a escolha do PostgreSQL e com a separação entre aplicação e infraestrutura.
+Ao confirmar uma operação, o service pode precisar executar várias escritas relacionadas dentro de uma mesma unidade lógica. Essa necessidade conversa fortemente com a escolha do MongoDB, com o uso de transações quando necessário e com a separação entre aplicação e infraestrutura.
 
 ---
 

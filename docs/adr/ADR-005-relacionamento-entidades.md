@@ -642,9 +642,9 @@ Logo, a modelagem precisa prever preservação histórica no próprio produto, c
 
 Essa decisão também protege a integridade das referências históricas vindas de draft, execução e auditoria.
 
-## 5. O modelo precisa favorecer PostgreSQL e integridade transacional
+## 5. O modelo precisa favorecer MongoDB com Mongoose e integridade operacional
 
-Como a POC já decidiu por PostgreSQL, o modelo foi pensado para se beneficiar de:
+Como a POC agora adota MongoDB com Mongoose, o modelo foi pensado para se beneficiar de:
 
 - foreign keys explícitas;
 - constraints por status;
@@ -693,7 +693,7 @@ A sequência sessão → mensagem → draft → decisão → execução → audi
 
 ### Adapter / Repository
 
-O modelo permite que services trabalhem sobre abstrações de persistência, enquanto PostgreSQL, streaming e provider de IA ficam nas bordas da aplicação.
+O modelo permite que services trabalhem sobre abstrações de persistência, enquanto MongoDB, Mongoose, streaming e provider de IA ficam nas bordas da aplicação.
 
 ---
 
@@ -786,7 +786,7 @@ A adoção desse relacionamento de entidades traz ganhos diretos para a POC:
 - fortalece a rastreabilidade ponta a ponta;
 - acomoda a tabela interativa com granularidade real por item;
 - preserva histórico de deleção por soft delete;
-- melhora aderência ao PostgreSQL e à integridade transacional;
+- melhora aderência ao MongoDB com Mongoose e à integridade operacional;
 - sustenta auditoria robusta;
 - prepara o fluxo para evolução futura sem ruptura conceitual.
 

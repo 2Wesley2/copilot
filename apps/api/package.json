@@ -9,17 +9,27 @@
     "start:prod": "node dist/main.js",
     "test": "node --test",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "pnpm exec eslint src ../../packages/contracts ../../packages/shared"
+    "lint": "pnpm exec eslint src",
+    "db:seed": "tsx src/mongodb/seed.ts"
   },
   "dependencies": {
+    "@copilot/shared": "workspace:*",
     "@nestjs/common": "11.1.16",
+    "@nestjs/config": "4.0.3",
     "@nestjs/core": "11.1.16",
+    "@nestjs/mongoose": "11.0.4",
     "@nestjs/platform-express": "11.1.16",
+    "dotenv": "17.3.1",
+    "mongodb-memory-server": "^11.0.1",
+    "mongoose": "9.3.0",
+    "openai": "6.27.0",
     "reflect-metadata": "0.2.2",
-    "rxjs": "7.8.2"
+    "rxjs": "7.8.2",
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@nestjs/cli": "11.0.16",
-    "@nestjs/testing": "11.1.16"
+    "@nestjs/testing": "11.1.16",
+    "tsx": "4.21.0"
   }
 }

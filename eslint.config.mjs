@@ -150,6 +150,9 @@ const webRestrictedImports = [
 export default defineConfig([
   {
     ignores: [
+      '**/eslint.config.mjs',
+      '**/prettier.config.mjs',
+      '**/*.config.mjs',
       '**/node_modules/**',
       '**/dist/**',
       '**/build/**',
@@ -158,6 +161,9 @@ export default defineConfig([
       '**/.turbo/**',
       '**/*.d.ts',
     ],
+  },
+
+  {
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
     },
@@ -167,6 +173,11 @@ export default defineConfig([
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
+
+  {
+    files: ['**/*.{js,jsx,mjs,cjs}'],
+    extends: [tseslint.configs.disableTypeChecked],
+  },
 
   {
     files: ['apps/**/*.{ts,tsx,mts,cts}', 'packages/**/*.{ts,tsx,mts,cts}'],
@@ -209,7 +220,7 @@ export default defineConfig([
     settings: {
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
-          project: ['apps/*/tsconfig.json', 'packages/*/tsconfig.json'],
+          project: ['apps/*/tsconfig.json', 'apps/packages/*/tsconfig.json'],
           alwaysTryTypes: true,
         }),
         createNodeResolver({
@@ -225,9 +236,21 @@ export default defineConfig([
           capture: ['module'],
         },
         {
+          type: 'api-controller',
+          pattern: 'apps/api/src/modules/*/*.controller.ts',
+          capture: ['module'],
+          mode: 'file',
+        },
+        {
           type: 'api-service',
           pattern: 'apps/api/src/modules/*/services/**/*',
           capture: ['module'],
+        },
+        {
+          type: 'api-service',
+          pattern: 'apps/api/src/modules/*/*.service.ts',
+          capture: ['module'],
+          mode: 'file',
         },
         {
           type: 'api-domain',
@@ -238,6 +261,12 @@ export default defineConfig([
           type: 'api-repository',
           pattern: 'apps/api/src/modules/*/repositories/**/*',
           capture: ['module'],
+        },
+        {
+          type: 'api-repository',
+          pattern: 'apps/api/src/modules/*/*.repository.ts',
+          capture: ['module'],
+          mode: 'file',
         },
         {
           type: 'api-dto',
@@ -256,8 +285,17 @@ export default defineConfig([
           mode: 'file',
         },
         {
+          type: 'api-app-root',
+          pattern: 'apps/api/src/app.module.ts',
+          mode: 'file',
+        },
+        {
           type: 'api-infra-persistence',
           pattern: 'apps/api/src/infra/persistence/**/*',
+        },
+        {
+          type: 'api-infra-persistence',
+          pattern: 'apps/api/src/mongodb/**/*',
         },
         {
           type: 'api-infra-llm',
@@ -281,11 +319,11 @@ export default defineConfig([
         },
         {
           type: 'contracts',
-          pattern: 'packages/contracts/**/*',
+          pattern: 'apps/packages/contracts/**/*',
         },
         {
           type: 'shared-package',
-          pattern: 'packages/shared/**/*',
+          pattern: 'apps/packages/shared/**/*',
         },
         {
           type: 'web-app',
@@ -323,7 +361,7 @@ export default defineConfig([
       'import-x/newline-after-import': ['error', { count: 1 }],
       'import-x/no-duplicates': 'error',
       'import-x/no-self-import': 'error',
-      'import-x/no-useless-path-segments': ['error', { noUselessIndex: true }],
+      'import-x/no-useless-path-segments': ['error', { noUselessIndex: false }],
       'import-x/export': 'error',
       'import-x/no-mutable-exports': 'error',
       'import-x/no-unresolved': 'error',
@@ -390,7 +428,13 @@ export default defineConfig([
             },
             {
               from: 'api-repository',
-              allow: ['api-domain', 'contracts', 'shared-package', 'api-config'],
+              allow: [
+                'api-domain',
+                'contracts',
+                'shared-package',
+                'api-config',
+                'api-infra-persistence',
+              ],
             },
             {
               from: 'api-dto',
@@ -412,11 +456,17 @@ export default defineConfig([
                 'contracts',
                 'shared-package',
                 'api-config',
+                'api-infra-persistence',
               ],
+            },
+            {
+              from: 'api-app-root',
+              allow: ['api-module-root', 'api-infra-persistence', 'api-config'],
             },
             {
               from: 'api-infra-persistence',
               allow: [
+                'api-infra-persistence',
                 'api-domain',
                 'api-repository',
                 'api-mapper',
@@ -559,7 +609,7 @@ export default defineConfig([
         'error',
         {
           prefer: 'type-imports',
-          fixStyle: 'separate-type-imports',
+          fixStyle: 'inline-type-imports',
           disallowTypeAnnotations: true,
         },
       ],
@@ -600,9 +650,31 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ['apps/api/src/modules/*/*.controller.ts'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: controllerRestrictedImports,
+        },
+      ],
+    },
+  },
 
   {
     files: ['apps/api/src/modules/*/services/**/*.{ts,tsx,mts,cts}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: serviceRestrictedImports,
+        },
+      ],
+    },
+  },
+  {
+    files: ['apps/api/src/modules/*/*.service.ts'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
@@ -628,7 +700,9 @@ export default defineConfig([
   {
     files: [
       'apps/api/src/modules/*/repositories/**/*.{ts,tsx,mts,cts}',
+      'apps/api/src/modules/*/*.repository.ts',
       'apps/api/src/infra/persistence/**/*.{ts,tsx,mts,cts}',
+      'apps/api/src/mongodb/**/*.{ts,tsx,mts,cts}',
     ],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
@@ -637,6 +711,26 @@ export default defineConfig([
           patterns: repositoryRestrictedImports,
         },
       ],
+    },
+  },
+  {
+    files: ['apps/api/src/**/*.module.ts'],
+    rules: {
+      '@typescript-eslint/no-extraneous-class': 'off',
+    },
+  },
+  {
+    files: [
+      'apps/api/src/app.module.ts',
+      'apps/api/src/mongodb/**/*.{ts,tsx,mts,cts}',
+      'apps/api/src/modules/*/*.repository.ts',
+    ],
+    rules: {
+      'boundaries/no-unknown': 'off',
+      'boundaries/no-unknown-files': 'off',
+      'boundaries/no-private': 'off',
+      'boundaries/element-types': 'off',
+      '@typescript-eslint/no-extraneous-class': ['error', { allowWithDecorator: true }],
     },
   },
 

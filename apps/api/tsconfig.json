@@ -4,26 +4,22 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
-
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
-
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.api.tsbuildinfo",
-
     "declaration": false,
     "declarationMap": false,
     "sourceMap": true,
     "inlineSources": false,
-
     "types": ["node"],
-
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@contracts/*": ["../../packages/contracts/*"],
-      "@shared/*": ["../../packages/shared/*"]
+      "@copilot/shared": ["../packages/shared/src/index.ts"],
+      "@copilot/shared/*": ["../packages/shared/src/*"]
     }
   },
+  "references": [{ "path": "../packages/shared" }],
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["dist", "node_modules"]
 }

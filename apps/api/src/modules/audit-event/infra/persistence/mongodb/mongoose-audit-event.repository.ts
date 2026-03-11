@@ -1,0 +1,44 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import type { Model } from 'mongoose';
+
+import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
+import { MONGO_MODELS } from '../../../../../mongodb/mongoose.schemas.js';
+import type { AuditEvent } from '../../../audit-event.entity.js';
+import type { AuditEventRepository } from '../../../audit-event.repository.js';
+import {
+  type MongooseAuditEventDocument,
+  type MongooseAuditEventMapper,
+  type MongooseAuditEventPersistence,
+} from './mongoose-audit-event.mapper.js';
+
+@Injectable()
+export class MongooseAuditEventRepositoryAdapter implements AuditEventRepository {
+  constructor(
+    @InjectModel(MONGO_MODELS.names.auditEvent)
+    private readonly auditEventModel: Model<MongooseAuditEventPersistence>,
+    private readonly auditEventMapper: MongooseAuditEventMapper,
+  ) {}
+
+  findById(auditEventId: string): AsyncResult<AuditEvent | null, Error> {
+    return errorHandler.fromPromise(async () => {
+      const document: MongooseAuditEventDocument | null = await this.auditEventModel
+        .findById(auditEventId)
+        .exec();
+
+      if (document === null) {
+        return null;
+      }
+
+      return this.auditEventMapper.toDomain(document);
+    });
+  }
+
+  save(event: AuditEvent): AsyncResult<void, Error> {
+    return errorHandler.fromPromise(async () => {
+      const persistence = this.auditEventMapper.toPersistence(event);
+
+      await this.auditEventModel.create(persistence);
+    });
+  }
+}

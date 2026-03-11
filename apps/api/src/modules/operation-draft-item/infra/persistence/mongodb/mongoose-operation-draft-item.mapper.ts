@@ -1,0 +1,43 @@
+import { isNullish } from '@copilot/shared';
+import { type HydratedDocument,Types } from 'mongoose';
+
+import { OperationDraftItem } from '../../../operation-draft-item.entity.js';
+
+export interface MongooseOperationDraftItemPersistence {
+  readonly _id: Types.ObjectId;
+  readonly action: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE';
+  readonly draftId: Types.ObjectId;
+  readonly payload: unknown;
+  readonly position: number;
+  readonly productId?: Types.ObjectId;
+  readonly createdAt: Date;
+}
+
+export type MongooseOperationDraftItemDocument =
+  HydratedDocument<MongooseOperationDraftItemPersistence>;
+
+export class MongooseOperationDraftItemMapper {
+  toDomain(document: MongooseOperationDraftItemDocument): OperationDraftItem {
+    return new OperationDraftItem({
+      id: document._id.toHexString(),
+      action: document.action,
+      draftId: document.draftId.toHexString(),
+      payload: document.payload,
+      position: document.position,
+      ...(isNullish(document.productId) ? {} : { productId: document.productId.toHexString() }),
+      createdAt: document.createdAt,
+    });
+  }
+
+  toPersistence(item: OperationDraftItem): MongooseOperationDraftItemPersistence {
+    return {
+      _id: new Types.ObjectId(item.id),
+      action: item.action,
+      draftId: new Types.ObjectId(item.draftId),
+      payload: item.payload,
+      position: item.position,
+      ...(isNullish(item.productId) ? {} : { productId: new Types.ObjectId(item.productId) }),
+      createdAt: item.createdAt,
+    };
+  }
+}

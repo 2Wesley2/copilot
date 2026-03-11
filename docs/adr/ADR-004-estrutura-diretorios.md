@@ -8,7 +8,7 @@ O foco deste documento é transformar a organização do repositório em uma con
 
 - arquitetura hexagonal/modular;
 - uso de Nest no backend e Next no frontend;
-- PostgreSQL como banco principal;
+- MongoDB como banco principal, com Mongoose na camada de infraestrutura;
 - soft delete obrigatório;
 - streaming e renderização progressiva;
 - confirmação explícita antes de qualquer operação CRUD;
@@ -50,7 +50,7 @@ Ela precisa evidenciar, no próprio repositório, onde vivem:
 - as entidades centrais do fluxo;
 - os módulos de aplicação que operam sobre essas entidades;
 - os contratos compartilhados entre backend e frontend;
-- as migrations e artefatos físicos de persistência;
+- os artefatos físicos de persistência, conexão e seed;
 - a documentação por entidade e por relacionamento;
 - os pontos de integração com streaming, LLM, auditoria e transporte.
 
@@ -65,7 +65,7 @@ A árvore do repositório precisa deixar explícito que a aplicação possui:
 - duas apps principais: `api` e `web`;
 - contratos compartilhados versionados;
 - documentação técnica e de dados versionada;
-- persistência relacional rastreável;
+- persistência documental rastreável;
 - módulos backend que contemplem todas as entidades do ADR de relacionamento.
 
 A estrutura recomendada passa a ser a seguinte:
@@ -84,29 +84,30 @@ copilot/
 │  │  │  │  ├─ draft-decision/
 │  │  │  │  ├─ operation-execution/
 │  │  │  │  ├─ audit-event/
-│  │  │  │  ├─ product/
-│  │  │  │  └─ shared/
+│  │  │  │  └─ product/
+│  │  │  ├─ mongodb/
+│  │  │  │  ├─ mongodb.environment.ts
+│  │  │  │  ├─ mongodb.errors.ts
+│  │  │  │  ├─ mongodb.module.ts
+│  │  │  │  ├─ mongodb.runtime.ts
+│  │  │  │  ├─ mongoose.schemas.ts
+│  │  │  │  └─ seed.ts
 │  │  │  ├─ infra/
-│  │  │  │  ├─ persistence/
-│  │  │  │  │  ├─ postgres/
-│  │  │  │  │  │  ├─ schemas/
-│  │  │  │  │  │  ├─ repositories/
-│  │  │  │  │  │  └─ mappers/
 │  │  │  │  ├─ llm/
 │  │  │  │  ├─ streaming/
 │  │  │  │  ├─ transport/
 │  │  │  │  └─ observability/
 │  │  │  ├─ config/
+│  │  │  ├─ app.module.ts
 │  │  │  └─ main.ts
-│  │  ├─ db/
-│  │  │  ├─ migrations/
-│  │  │  └─ seeds/
 │  │  ├─ test/
 │  │  │  ├─ unit/
 │  │  │  ├─ integration/
 │  │  │  └─ e2e/
 │  │  └─ package.json
-│  │
+│  ├─ packages/
+│  │  ├─ contracts/
+│  │  └─ shared/
 │  └─ web/
 │     ├─ src/
 │     │  ├─ app/
@@ -125,36 +126,22 @@ copilot/
 │     │  └─ lib/
 │     ├─ public/
 │     └─ package.json
-│
-├─ packages/
-│  ├─ contracts/
-│  │  ├─ actor/
-│  │  ├─ conversation/
-│  │  ├─ draft/
-│  │  ├─ execution/
-│  │  ├─ audit/
-│  │  ├─ product/
-│  │  └─ streaming/
-│  ├─ shared/
-│  └─ config/
-│
 ├─ docs/
 │  ├─ product/
 │  ├─ architecture/
 │  ├─ adr/
 │  ├─ api/
-│  └─ data/
-│     ├─ actor-model.md
-│     ├─ conversation-session-model.md
-│     ├─ conversation-message-model.md
-│     ├─ operation-draft-model.md
-│     ├─ operation-draft-item-model.md
-│     ├─ draft-decision-model.md
-│     ├─ operation-execution-model.md
-│     ├─ audit-event-model.md
-│     ├─ product-model.md
-│     └─ delete-policy.md
-│
+│  ├─ data/
+│  │  ├─ actor-model.md
+│  │  ├─ conversation-session-model.md
+│  │  ├─ conversation-message-model.md
+│  │  ├─ operation-draft-model.md
+│  │  ├─ operation-draft-item-model.md
+│  │  ├─ draft-decision-model.md
+│  │  ├─ operation-execution-model.md
+│  │  ├─ audit-event-model.md
+│  │  ├─ product-model.md
+│  │  └─ delete-policy.md
 │  ├─ workflows/
 │  ├─ ISSUE_TEMPLATE/
 │  └─ pull_request_template.md
@@ -197,7 +184,7 @@ Essa escolha melhora:
 - rastreabilidade da modelagem no código;
 - clareza de ownership por entidade;
 - legibilidade da persistência;
-- facilidade para criar migrations e testes por contexto;
+- facilidade para evoluir schemas, seed e testes por contexto;
 - alinhamento entre documentação e implementação.
 
 ---
@@ -264,7 +251,7 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/actor/
-packages/contracts/actor/
+apps/packages/contracts/actor/
 docs/data/actor-model.md
 ```
 
@@ -276,7 +263,7 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/conversation-session/
-packages/contracts/conversation/session/
+apps/packages/contracts/conversation/session/
 docs/data/conversation-session-model.md
 ```
 
@@ -288,7 +275,7 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/conversation-message/
-packages/contracts/conversation/message/
+apps/packages/contracts/conversation/message/
 docs/data/conversation-message-model.md
 ```
 
@@ -300,7 +287,7 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/operation-draft/
-packages/contracts/draft/
+apps/packages/contracts/draft/
 docs/data/operation-draft-model.md
 ```
 
@@ -312,7 +299,7 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/operation-draft-item/
-packages/contracts/draft/items/
+apps/packages/contracts/draft/items/
 docs/data/operation-draft-item-model.md
 ```
 
@@ -324,7 +311,7 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/draft-decision/
-packages/contracts/draft/decision/
+apps/packages/contracts/draft/decision/
 docs/data/draft-decision-model.md
 ```
 
@@ -336,7 +323,7 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/operation-execution/
-packages/contracts/execution/
+apps/packages/contracts/execution/
 docs/data/operation-execution-model.md
 ```
 
@@ -348,7 +335,7 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/audit-event/
-packages/contracts/audit/
+apps/packages/contracts/audit/
 docs/data/audit-event-model.md
 ```
 
@@ -360,15 +347,15 @@ Sugestão:
 
 ```txt
 apps/api/src/modules/product/
-packages/contracts/product/
+apps/packages/contracts/product/
 docs/data/product-model.md
 ```
 
 ---
 
-## Por que `packages/contracts` deve espelhar os mesmos núcleos
+## Por que `apps/packages/contracts` deve espelhar os mesmos núcleos
 
-Como a interface e a API precisam concordar sobre drafts, itens, decisões, mensagens, streaming e auditoria, `packages/contracts` deve refletir os mesmos núcleos semânticos do backend.
+Como a interface e a API precisam concordar sobre drafts, itens, decisões, mensagens, streaming e auditoria, `apps/packages/contracts` deve refletir os mesmos núcleos semânticos do backend.
 
 Não é necessário copiar exatamente a mesma árvore de `modules/`, mas os contratos compartilhados precisam cobrir pelo menos:
 
@@ -416,11 +403,11 @@ docs/data/
 Essa divisão ajuda porque:
 
 - evita superdocumentos difíceis de manter;
-- separa visão por entidade da visão relacional global;
+- separa visão por entidade da visão global de relacionamento;
 - aproxima documentação do desenho efetivo do banco e do domínio;
 - melhora onboarding e revisão arquitetural.
 
-O artefato relacional global deve seguir a convenção já consolidada pelos ADRs do projeto.
+O artefato global de relacionamento deve seguir a convenção já consolidada pelos ADRs do projeto.
 
 Por isso, o nome recomendado para esse documento é:
 
@@ -434,42 +421,37 @@ Se a equipe optar futuramente por renumeração sequencial estrita dos ADRs, ess
 
 ## Estrutura física de persistência recomendada
 
-Como o banco principal é PostgreSQL e o modelo relacional já foi justificado, a estrutura do backend deve deixar evidente onde ficam os artefatos físicos do banco.
+Como o banco principal passa a ser MongoDB e a integração da API é feita por Mongoose, a estrutura do backend deve deixar evidente onde ficam os artefatos de conexão, environment, erro, runtime, schemas e seed.
 
 Por isso, a API deve conter:
 
 ```txt
-apps/api/db/
-├─ migrations/
-└─ seeds/
+apps/api/
+├─ src/
+│  ├─ mongodb/
+│  │  ├─ mongodb.environment.ts
+│  │  ├─ mongodb.errors.ts
+│  │  ├─ mongodb.module.ts
+│  │  ├─ mongodb.runtime.ts
+│  │  ├─ mongoose.schemas.ts
+│  │  └─ seed.ts
 ```
 
-E a infraestrutura de persistência deve prever diretórios como:
+A configuração de ambiente, os erros específicos da conexão, a seleção de runtime, os schemas Mongoose e o seed ficam agrupados em `apps/api/src/mongodb/`, junto da infraestrutura de persistência usada pela API.
 
-```txt
-apps/api/src/infra/persistence/postgres/
-├─ schemas/
-├─ repositories/
-└─ mappers/
-```
+Esse agrupamento ajuda a separar claramente:
 
-### `schemas/`
-
-Para materialização física das entidades e tabelas.
-
-### `repositories/`
-
-Para adapters concretos da persistência.
-
-### `mappers/`
-
-Para conversão entre modelo relacional, domínio e contratos.
+- leitura e validação de variáveis de ambiente;
+- construção de erros específicos da conexão;
+- escolha do modo de execução do banco;
+- definição dos schemas/documentos;
+- inicialização de dados de desenvolvimento.
 
 Esse desenho ajuda a sustentar, de forma limpa, a diferença entre:
 
 - modelo conceitual documentado;
 - modelo de domínio;
-- modelo físico do banco.
+- modelo físico do banco documental.
 
 ---
 
@@ -535,7 +517,7 @@ Em síntese, a decisão deste ADR é que a estrutura do projeto seja:
 - coerente por feature no frontend;
 - rastreável em contratos compartilhados;
 - documentada por entidade e por relacionamento;
-- preparada para persistência relacional auditável.
+- preparada para persistência documental auditável.
 
 ---
 
