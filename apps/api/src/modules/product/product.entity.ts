@@ -91,3 +91,5 @@ export class Product {
     };
   }
 }
+
+export const createProduct = (props: ProductProps) => new Product(props);

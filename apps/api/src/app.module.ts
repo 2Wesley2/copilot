@@ -13,7 +13,7 @@ import { PersistenceModule } from './persistence/persistence.module.js';
 
 @Module({
   imports: [
-    PersistenceModule.register(),
+    PersistenceModule,
     ActorModule,
     ConversationSessionModule,
     ConversationMessageModule,

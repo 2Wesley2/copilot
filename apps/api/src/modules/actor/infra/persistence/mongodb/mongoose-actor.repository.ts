@@ -20,7 +20,7 @@ export class MongooseActorRepositoryAdapter implements ActorRepository {
     private readonly actorMapper: MongooseActorMapper,
   ) {}
 
-  findById(actorId: string): AsyncResult<Actor | null, Error> {
+  public findById(actorId: string): AsyncResult<Actor | null, Error> {
     return errorHandler.fromPromise(async () => {
       const document: MongooseActorDocument | null = await this.actorModel.findById(actorId).exec();
 
@@ -32,7 +32,7 @@ export class MongooseActorRepositoryAdapter implements ActorRepository {
     });
   }
 
-  findByExternalId(externalId: string): AsyncResult<Actor | null, Error> {
+  public findByExternalId(externalId: string): AsyncResult<Actor | null, Error> {
     return errorHandler.fromPromise(async () => {
       const document: MongooseActorDocument | null = await this.actorModel
         .findOne({ externalId })

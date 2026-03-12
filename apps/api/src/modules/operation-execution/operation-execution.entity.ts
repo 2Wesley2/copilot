@@ -55,3 +55,6 @@ export class OperationExecution {
     };
   }
 }
+
+export const createOperationExecution = (props: OperationExecutionProps) =>
+  new OperationExecution(props);

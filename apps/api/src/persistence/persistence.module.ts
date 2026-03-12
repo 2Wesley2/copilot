@@ -1,8 +1,9 @@
-import { type DynamicModule, Module } from '@nestjs/common';
+import { isNullish } from '@copilot/shared';
+import { type DynamicModule, Global, Module } from '@nestjs/common';
 
 import { createError } from '../error/error.factory.js';
 import { errorHandler, type Result } from '../error/index.js';
-import { MongoMongoosePersistenceStrategy } from '../mongodb/mongodb.module.js';
+import { createMongoMongoosePersistenceStrategy } from '../mongodb/mongodb.module.js';
 import {
   type PersistenceProfile,
   type PersistenceRuntimeEnv,
@@ -14,7 +15,9 @@ export interface PersistenceModuleStrategy {
   createModule(): DynamicModule;
 }
 
-const persistenceStrategies: PersistenceModuleStrategy[] = [new MongoMongoosePersistenceStrategy()];
+const persistenceStrategies: PersistenceModuleStrategy[] = [
+  createMongoMongoosePersistenceStrategy(),
+];
 
 function resolvePersistenceStrategy(
   profile: PersistenceProfile,
@@ -32,16 +35,60 @@ function resolvePersistenceStrategy(
   );
 }
 
-@Module({})
+function resolvePersistenceDynamicModule(env: PersistenceRuntimeEnv = process.env): DynamicModule {
+  return resolvePersistenceProfile(env)
+    .andThen((profile) => resolvePersistenceStrategy(profile))
+    .match(
+      (strategy) => strategy.createModule(),
+      (error) => {
+        throw error;
+      },
+    );
+}
+
+type PersistenceStaticModuleMetadata = Parameters<typeof Module>[0];
+
+function toPersistenceStaticModuleMetadata(
+  dynamicModule: DynamicModule,
+): PersistenceStaticModuleMetadata {
+  const metadata: PersistenceStaticModuleMetadata = {};
+
+  if (!isNullish(dynamicModule.controllers)) {
+    metadata.controllers = dynamicModule.controllers;
+  }
+
+  if (!isNullish(dynamicModule.exports)) {
+    metadata.exports = dynamicModule.exports;
+  }
+
+  if (!isNullish(dynamicModule.imports)) {
+    metadata.imports = dynamicModule.imports;
+  }
+
+  if (!isNullish(dynamicModule.providers)) {
+    metadata.providers = dynamicModule.providers;
+  }
+
+  return metadata;
+}
+
+export function PersistenceModuleDecorator(
+  env: PersistenceRuntimeEnv = process.env,
+): ClassDecorator {
+  return (target) => {
+    const dynamicModule = resolvePersistenceDynamicModule(env);
+
+    if (dynamicModule.global === true) {
+      Global()(target);
+    }
+
+    Module(toPersistenceStaticModuleMetadata(dynamicModule))(target);
+  };
+}
+
+@PersistenceModuleDecorator()
 export class PersistenceModule {
   static register(env: PersistenceRuntimeEnv = process.env): DynamicModule {
-    return resolvePersistenceProfile(env)
-      .andThen((profile) => resolvePersistenceStrategy(profile))
-      .match(
-        (strategy) => strategy.createModule(),
-        (error) => {
-          throw error;
-        },
-      );
+    return resolvePersistenceDynamicModule(env);
   }
 }

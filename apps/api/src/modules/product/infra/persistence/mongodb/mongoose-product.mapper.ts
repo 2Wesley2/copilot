@@ -1,7 +1,7 @@
 import { isNullish } from '@copilot/shared';
-import { type HydratedDocument,Types } from 'mongoose';
+import { type HydratedDocument, Types } from 'mongoose';
 
-import { Product } from '../../../product.entity.js';
+import { createProduct, type Product } from '../../../product.entity.js';
 
 export interface MongooseProductPersistence {
   readonly _id: Types.ObjectId;
@@ -23,7 +23,7 @@ export type MongooseProductDocument = HydratedDocument<MongooseProductPersistenc
 
 export class MongooseProductMapper {
   toDomain(document: MongooseProductDocument): Product {
-    return new Product({
+    return createProduct({
       id: document._id.toHexString(),
       ...(isNullish(document.deletedAt) ? {} : { deletedAt: document.deletedAt }),
       ...(isNullish(document.description) ? {} : { description: document.description }),

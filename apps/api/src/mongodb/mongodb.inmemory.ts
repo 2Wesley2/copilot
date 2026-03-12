@@ -4,7 +4,7 @@ import { type AsyncResult, errorHandler } from '../error/index.js';
 
 let memoryServerPromise: Promise<MongoMemoryServer> | null = null;
 
-function createMemoryServerPromise(): Promise<MongoMemoryServer> {
+async function createMemoryServerPromise(): Promise<MongoMemoryServer> {
   return Promise.resolve().then(() => MongoMemoryServer.create());
 }
 

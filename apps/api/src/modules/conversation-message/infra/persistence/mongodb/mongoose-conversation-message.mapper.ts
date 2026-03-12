@@ -1,7 +1,10 @@
 import { isNullish } from '@copilot/shared';
 import { type HydratedDocument, Types } from 'mongoose';
 
-import { ConversationMessage } from '../../../conversation-message.entity.js';
+import {
+  type ConversationMessage,
+  createConversationMessage,
+} from '../../../conversation-message.entity.js';
 
 export interface MongooseConversationMessagePersistence {
   readonly _id: Types.ObjectId;
@@ -18,7 +21,7 @@ export type MongooseConversationMessageDocument =
 
 export class MongooseConversationMessageMapper {
   toDomain(document: MongooseConversationMessageDocument): ConversationMessage {
-    return new ConversationMessage({
+    return createConversationMessage({
       id: document._id.toHexString(),
       ...(isNullish(document.actorId) ? {} : { actorId: document.actorId.toHexString() }),
       content: document.content,

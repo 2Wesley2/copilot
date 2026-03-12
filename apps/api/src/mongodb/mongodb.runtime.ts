@@ -95,10 +95,14 @@ class AtlasMongoModeStrategy extends BaseMongoModeStrategy {
   }
 }
 
+const createAtlasMongoModeStrategy = () => new AtlasMongoModeStrategy();
+const createInMemoryMongoModeStrategy = () => new InMemoryMongoModeStrategy();
+const createLocalMongoModeStrategy = () => new LocalMongoModeStrategy();
+
 const mongoModeStrategies: Record<DbMode, MongoModeStrategy> = {
-  atlas: new AtlasMongoModeStrategy(),
-  inmemory: new InMemoryMongoModeStrategy(),
-  local: new LocalMongoModeStrategy(),
+  atlas: createAtlasMongoModeStrategy(),
+  inmemory: createInMemoryMongoModeStrategy(),
+  local: createLocalMongoModeStrategy(),
 };
 
 export function resolveMongoRuntime(

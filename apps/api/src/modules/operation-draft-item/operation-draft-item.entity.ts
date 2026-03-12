@@ -55,3 +55,6 @@ export class OperationDraftItem {
     };
   }
 }
+
+export const createOperationDraftItem = (props: OperationDraftItemProps) =>
+  new OperationDraftItem(props);

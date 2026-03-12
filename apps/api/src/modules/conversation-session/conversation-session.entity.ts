@@ -41,3 +41,6 @@ export class ConversationSession {
     };
   }
 }
+
+export const createConversationSession = (props: ConversationSessionProps) =>
+  new ConversationSession(props);

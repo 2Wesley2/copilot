@@ -1,7 +1,10 @@
 import { isNullish } from '@copilot/shared';
-import { type HydratedDocument,Types } from 'mongoose';
+import { type HydratedDocument, Types } from 'mongoose';
 
-import { ConversationSession } from '../../../conversation-session.entity.js';
+import {
+  type ConversationSession,
+  createConversationSession,
+} from '../../../conversation-session.entity.js';
 
 export interface MongooseConversationSessionPersistence {
   readonly _id: Types.ObjectId;
@@ -16,7 +19,7 @@ export type MongooseConversationSessionDocument =
 
 export class MongooseConversationSessionMapper {
   toDomain(document: MongooseConversationSessionDocument): ConversationSession {
-    return new ConversationSession({
+    return createConversationSession({
       id: document._id.toHexString(),
       actorId: document.actorId.toHexString(),
       ...(isNullish(document.metadata) ? {} : { metadata: document.metadata }),

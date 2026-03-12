@@ -1,7 +1,7 @@
 import { isNullish } from '@copilot/shared';
-import { type HydratedDocument,Types } from 'mongoose';
+import { type HydratedDocument, Types } from 'mongoose';
 
-import { DraftDecision } from '../../../draft-decision.entity.js';
+import { createDraftDecision, type DraftDecision } from '../../../draft-decision.entity.js';
 
 export interface MongooseDraftDecisionPersistence {
   readonly _id: Types.ObjectId;
@@ -16,7 +16,7 @@ export type MongooseDraftDecisionDocument = HydratedDocument<MongooseDraftDecisi
 
 export class MongooseDraftDecisionMapper {
   toDomain(document: MongooseDraftDecisionDocument): DraftDecision {
-    return new DraftDecision({
+    return createDraftDecision({
       id: document._id.toHexString(),
       actorId: document.actorId.toHexString(),
       approved: document.approved,

@@ -56,14 +56,16 @@ export class MongoPersistenceModule {
 }
 
 export class MongoMongoosePersistenceStrategy implements PersistenceModuleStrategy {
-  supports(profile: PersistenceProfile): boolean {
+  public supports(profile: PersistenceProfile): boolean {
     return (
       profile.technology === PERSISTENCE.technologies.mongodb &&
       profile.mappingStyle === PERSISTENCE.mappingStyles.odm
     );
   }
 
-  createModule(): DynamicModule {
+  public createModule(): DynamicModule {
     return MongoPersistenceModule.register();
   }
 }
+
+export const createMongoMongoosePersistenceStrategy = () => new MongoMongoosePersistenceStrategy();

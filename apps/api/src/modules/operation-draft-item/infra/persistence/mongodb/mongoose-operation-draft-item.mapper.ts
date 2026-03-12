@@ -1,7 +1,10 @@
 import { isNullish } from '@copilot/shared';
-import { type HydratedDocument,Types } from 'mongoose';
+import { type HydratedDocument, Types } from 'mongoose';
 
-import { OperationDraftItem } from '../../../operation-draft-item.entity.js';
+import {
+  createOperationDraftItem,
+  type OperationDraftItem,
+} from '../../../operation-draft-item.entity.js';
 
 export interface MongooseOperationDraftItemPersistence {
   readonly _id: Types.ObjectId;
@@ -18,7 +21,7 @@ export type MongooseOperationDraftItemDocument =
 
 export class MongooseOperationDraftItemMapper {
   toDomain(document: MongooseOperationDraftItemDocument): OperationDraftItem {
-    return new OperationDraftItem({
+    return createOperationDraftItem({
       id: document._id.toHexString(),
       action: document.action,
       draftId: document.draftId.toHexString(),

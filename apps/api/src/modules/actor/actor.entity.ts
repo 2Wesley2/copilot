@@ -1,3 +1,5 @@
+import { isNullish } from '@copilot/shared';
+
 export interface ActorProps {
   readonly id: string;
   readonly externalId?: string;
@@ -37,11 +39,15 @@ export class Actor {
   toPrimitives(): ActorProps {
     return {
       id: this.props.id,
-      ...(this.props.externalId !== undefined ? { externalId: this.props.externalId } : {}),
-      ...(this.props.name !== undefined ? { name: this.props.name } : {}),
-      ...(this.props.email !== undefined ? { email: this.props.email } : {}),
+      ...(isNullish(this.props.externalId) ? {} : { externalId: this.props.externalId }),
+      ...(isNullish(this.props.name) ? {} : { name: this.props.name }),
+      ...(isNullish(this.props.email) ? {} : { email: this.props.email }),
       createdAt: this.props.createdAt,
       updatedAt: this.props.updatedAt,
     };
   }
 }
+
+export const createActor = (props: ActorProps): Actor => {
+  return new Actor(props);
+};

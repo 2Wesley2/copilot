@@ -1,7 +1,7 @@
 import { isNullish } from '@copilot/shared';
 import { type HydratedDocument, Types } from 'mongoose';
 
-import { AuditEvent } from '../../../audit-event.entity.js';
+import { type AuditEvent, createAuditEvent } from '../../../audit-event.entity.js';
 
 export interface MongooseAuditEventPersistence {
   readonly _id: Types.ObjectId;
@@ -19,8 +19,8 @@ export interface MongooseAuditEventPersistence {
 export type MongooseAuditEventDocument = HydratedDocument<MongooseAuditEventPersistence>;
 
 export class MongooseAuditEventMapper {
-  toDomain(document: MongooseAuditEventDocument): AuditEvent {
-    return new AuditEvent({
+  public toDomain(document: MongooseAuditEventDocument): AuditEvent {
+    return createAuditEvent({
       id: document._id.toHexString(),
       ...(isNullish(document.actorId) ? {} : { actorId: document.actorId.toHexString() }),
       ...(isNullish(document.draftId) ? {} : { draftId: document.draftId.toHexString() }),
@@ -36,7 +36,7 @@ export class MongooseAuditEventMapper {
     });
   }
 
-  toPersistence(event: AuditEvent): MongooseAuditEventPersistence {
+  public toPersistence(event: AuditEvent): MongooseAuditEventPersistence {
     const primitives = event.toPrimitives();
 
     return {

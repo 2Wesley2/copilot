@@ -47,3 +47,5 @@ export class DraftDecision {
     };
   }
 }
+
+export const createDraftDecision = (props: DraftDecisionProps) => new DraftDecision(props);

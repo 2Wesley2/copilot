@@ -55,3 +55,6 @@ export class ConversationMessage {
     };
   }
 }
+
+export const createConversationMessage = (props: ConversationMessageProps) =>
+  new ConversationMessage(props);

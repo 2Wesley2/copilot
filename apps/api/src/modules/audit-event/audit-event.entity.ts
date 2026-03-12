@@ -73,3 +73,5 @@ export class AuditEvent {
     };
   }
 }
+
+export const createAuditEvent = (props: AuditEventProps): AuditEvent => new AuditEvent(props);

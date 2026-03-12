@@ -1,6 +1,6 @@
-import { type HydratedDocument,Types } from 'mongoose';
+import { type HydratedDocument, Types } from 'mongoose';
 
-import { OperationDraft } from '../../../operation-draft.entity.js';
+import { createOperationDraft, type OperationDraft } from '../../../operation-draft.entity.js';
 
 export interface MongooseOperationDraftPersistence {
   readonly _id: Types.ObjectId;
@@ -17,7 +17,7 @@ export type MongooseOperationDraftDocument = HydratedDocument<MongooseOperationD
 
 export class MongooseOperationDraftMapper {
   toDomain(document: MongooseOperationDraftDocument): OperationDraft {
-    return new OperationDraft({
+    return createOperationDraft({
       id: document._id.toHexString(),
       actorId: document.actorId.toHexString(),
       intent: document.intent,

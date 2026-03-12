@@ -1,7 +1,10 @@
 import { isNullish } from '@copilot/shared';
-import { type HydratedDocument,Types } from 'mongoose';
+import { type HydratedDocument, Types } from 'mongoose';
 
-import { OperationExecution } from '../../../operation-execution.entity.js';
+import {
+  createOperationExecution,
+  type OperationExecution,
+} from '../../../operation-execution.entity.js';
 
 export interface MongooseOperationExecutionPersistence {
   readonly _id: Types.ObjectId;
@@ -18,7 +21,7 @@ export type MongooseOperationExecutionDocument =
 
 export class MongooseOperationExecutionMapper {
   toDomain(document: MongooseOperationExecutionDocument): OperationExecution {
-    return new OperationExecution({
+    return createOperationExecution({
       id: document._id.toHexString(),
       draftId: document.draftId.toHexString(),
       ...(isNullish(document.errorMessage) ? {} : { errorMessage: document.errorMessage }),

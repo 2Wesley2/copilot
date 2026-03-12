@@ -119,21 +119,40 @@ class PersistenceProfileResolver {
       );
   }
 }
+
+const createPersistenceProfileResolver = (params: PersistenceProfileResolverParams) =>
+  new PersistenceProfileResolver(params);
+
+const createEnvironmentOptionResolver = <TValue extends string>(
+  params: EnvironmentOptionResolverParams<TValue>,
+) => new EnvironmentOptionResolver<TValue>(params);
+
+const createEnvironmentOptionRegistry = <TValue extends string>(
+  params: EnvironmentOptionRegistryParams<TValue>,
+) => new EnvironmentOptionRegistry<TValue>(params);
+
+const createExactMatchEnvironmentOptionStrategy = <TValue extends string>(
+  params: ExactMatchEnvironmentOptionStrategyParams<TValue>,
+) => new ExactMatchEnvironmentOptionStrategy<TValue>(params);
+
+const createEnvironmentValueReader = (params: EnvironmentValueReaderParams) =>
+  new EnvironmentValueReader(params);
+
 class PersistenceEnvironmentFactory {
   createProfileResolver(env: PersistenceRuntimeEnv): PersistenceProfileResolver {
     const reader = this.createEnvironmentValueReader(env);
-    return new PersistenceProfileResolver({
+    return createPersistenceProfileResolver({
       mappingStyleResolver: this.createMappingStyleResolver(reader),
       technologyResolver: this.createTechnologyResolver(reader),
     });
   }
   private createEnvironmentValueReader(env: PersistenceRuntimeEnv): EnvironmentValueReader {
-    return new EnvironmentValueReader({ env });
+    return createEnvironmentValueReader({ env });
   }
   private createTechnologyResolver(
     reader: EnvironmentValueReader,
   ): EnvironmentOptionResolver<PersistenceTechnology> {
-    return new EnvironmentOptionResolver<PersistenceTechnology>({
+    return createEnvironmentOptionResolver<PersistenceTechnology>({
       defaultValue: PERSISTENCE.defaultProfile.technology,
       errorLabel: 'DATABASE_TECHNOLOGY',
       key: 'DATABASE_TECHNOLOGY',
@@ -144,7 +163,7 @@ class PersistenceEnvironmentFactory {
   private createMappingStyleResolver(
     reader: EnvironmentValueReader,
   ): EnvironmentOptionResolver<PersistenceMappingStyle> {
-    return new EnvironmentOptionResolver<PersistenceMappingStyle>({
+    return createEnvironmentOptionResolver<PersistenceMappingStyle>({
       defaultValue: PERSISTENCE.defaultProfile.mappingStyle,
       errorLabel: 'DATABASE_MAPPING_STYLE',
       key: 'DATABASE_MAPPING_STYLE',
@@ -153,7 +172,7 @@ class PersistenceEnvironmentFactory {
     });
   }
   private createTechnologyRegistry(): EnvironmentOptionRegistry<PersistenceTechnology> {
-    return new EnvironmentOptionRegistry<PersistenceTechnology>({
+    return createEnvironmentOptionRegistry<PersistenceTechnology>({
       strategies: [
         this.createExactMatchStrategy(PERSISTENCE.technologies.mongodb),
         this.createExactMatchStrategy(PERSISTENCE.technologies.postgresql),
@@ -163,7 +182,7 @@ class PersistenceEnvironmentFactory {
     });
   }
   private createMappingStyleRegistry(): EnvironmentOptionRegistry<PersistenceMappingStyle> {
-    return new EnvironmentOptionRegistry<PersistenceMappingStyle>({
+    return createEnvironmentOptionRegistry<PersistenceMappingStyle>({
       strategies: [
         this.createExactMatchStrategy(PERSISTENCE.mappingStyles.odm),
         this.createExactMatchStrategy(PERSISTENCE.mappingStyles.orm),
@@ -173,10 +192,11 @@ class PersistenceEnvironmentFactory {
   private createExactMatchStrategy<TValue extends string>(
     value: TValue,
   ): EnvironmentOptionStrategy<TValue> {
-    return new ExactMatchEnvironmentOptionStrategy<TValue>({ value });
+    return createExactMatchEnvironmentOptionStrategy<TValue>({ value });
   }
 }
-const persistenceEnvironmentFactory = new PersistenceEnvironmentFactory();
+const createPersistenceEnvironmentFactory = () => new PersistenceEnvironmentFactory();
+const persistenceEnvironmentFactory = createPersistenceEnvironmentFactory();
 export function resolvePersistenceProfile(
   env: PersistenceRuntimeEnv,
 ): Result<PersistenceProfile, Error> {

@@ -78,13 +78,13 @@ const createMongoEnvironmentVariables = (env: RuntimeEnv): MongoEnvironmentVaria
   new MongoEnvironmentVariables(env);
 
 class MongoDbMode {
-  private constructor(private readonly value: DbMode) {}
+  private constructor(readonly value: DbMode) {}
 
-  static createMongoDbMode(value: DbMode): MongoDbMode {
+  public static createMongoDbMode(value: DbMode): MongoDbMode {
     return new MongoDbMode(value);
   }
 
-  static parse(rawMode: string | undefined): Result<MongoDbMode, Error> {
+  public static parse(rawMode: string | undefined): Result<MongoDbMode, Error> {
     if (rawMode === undefined) {
       return errorHandler.err(createMissingDbModeError());
     }
@@ -104,19 +104,19 @@ class MongoDbMode {
     return errorHandler.err(createInvalidDbModeError(rawMode));
   }
 
-  toValue(): DbMode {
+  public toValue(): DbMode {
     return this.value;
   }
 
-  isInMemory(): boolean {
+  public isInMemory(): boolean {
     return this.value === MONGO_ENVIRONMENT.dbModes.inmemory;
   }
 
-  isLocal(): boolean {
+  public isLocal(): boolean {
     return this.value === MONGO_ENVIRONMENT.dbModes.local;
   }
 
-  isAtlas(): boolean {
+  public isAtlas(): boolean {
     return this.value === MONGO_ENVIRONMENT.dbModes.atlas;
   }
 }
