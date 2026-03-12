@@ -14,7 +14,7 @@ export interface MongooseActorPersistence {
 
 export type MongooseActorDocument = HydratedDocument<MongooseActorPersistence>;
 export class MongooseActorMapper {
-  toDomain(document: MongooseActorDocument): Actor {
+  public toDomain(document: MongooseActorDocument): Actor {
     return createActor({
       id: document._id.toHexString(),
       ...(isNullish(document.externalId) ? {} : { externalId: document.externalId }),
