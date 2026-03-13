@@ -22,7 +22,7 @@ export class OperationDraftItemService {
     return this.repository.findById(itemId);
   }
 
-  save(item: OperationDraftItem): AsyncResult<void, Error> {
+  public save(item: OperationDraftItem): AsyncResult<void, Error> {
     return this.repository.save(item);
   }
 }
