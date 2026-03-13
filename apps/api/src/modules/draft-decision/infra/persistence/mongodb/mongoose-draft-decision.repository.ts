@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import { MONGO_MODELS } from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
 import type { DraftDecision } from '../../../draft-decision.entity.js';
 import type { DraftDecisionRepository } from '../../../draft-decision.repository.js';
 import {
@@ -15,7 +15,7 @@ import {
 @Injectable()
 export class MongooseDraftDecisionRepositoryAdapter implements DraftDecisionRepository {
   public constructor(
-    @InjectModel(MONGO_MODELS.names.draftDecision)
+    @InjectModel(MONGO_SCHEMAS.names.draftDecision)
     private readonly draftDecisionModel: Model<MongooseDraftDecisionPersistence>,
     private readonly draftDecisionMapper: MongooseDraftDecisionMapper,
   ) {}

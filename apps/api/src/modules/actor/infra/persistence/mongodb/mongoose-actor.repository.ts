@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import { MONGO_MODELS } from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
 import type { Actor } from '../../../actor.entity.js';
 import type { ActorRepository } from '../../../actor.repository.js';
 import {
@@ -15,7 +15,7 @@ import {
 @Injectable()
 export class MongooseActorRepositoryAdapter implements ActorRepository {
   public constructor(
-    @InjectModel(MONGO_MODELS.names.actor)
+    @InjectModel(MONGO_SCHEMAS.names.actor)
     private readonly actorModel: Model<MongooseActorPersistence>,
     private readonly actorMapper: MongooseActorMapper,
   ) {}

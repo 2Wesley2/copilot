@@ -1,6 +1,6 @@
-import type { ModelDefinition } from '@nestjs/mongoose';
+import type { ModelDefinition as NestSchemaDefinition } from '@nestjs/mongoose';
 import { Prop, Schema as NestSchema, SchemaFactory } from '@nestjs/mongoose';
-import type { HydratedDocument } from 'mongoose';
+import type { HydratedDocument, Schema as MongooseSchemaType } from 'mongoose';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
 const MESSAGE_ROLES = ['SYSTEM', 'USER', 'ASSISTANT'] as const;
@@ -8,7 +8,7 @@ const DRAFT_STATUSES = ['PENDING', 'CONFIRMED', 'REJECTED'] as const;
 const DRAFT_ITEM_ACTIONS = ['CREATE', 'READ', 'UPDATE', 'DELETE'] as const;
 const EXECUTION_STATUSES = ['PENDING', 'SUCCESS', 'FAILED'] as const;
 
-interface MongoModelCatalog {
+interface MongoSchemaCatalog {
   readonly names: {
     readonly actor: string;
     readonly conversationSession: string;
@@ -33,7 +33,7 @@ interface MongoModelCatalog {
   };
 }
 
-export const MONGO_MODELS: MongoModelCatalog = Object.freeze({
+export const MONGO_SCHEMAS: MongoSchemaCatalog = Object.freeze({
   names: Object.freeze({
     actor: 'Actor',
     auditEvent: 'AuditEvent',
@@ -58,12 +58,7 @@ export const MONGO_MODELS: MongoModelCatalog = Object.freeze({
   }),
 });
 
-/*
-  Nest-style schema classes. Use `@Prop` to define fields and `SchemaFactory.createForClass`
-  to build Mongoose schemas. Indexes and schema options match the previous creators.
-*/
-
-@NestSchema({ collection: MONGO_MODELS.collections.actor, timestamps: true, versionKey: false })
+@NestSchema({ collection: MONGO_SCHEMAS.collections.actor, timestamps: true, versionKey: false })
 export class Actor {
   @Prop({ trim: true, lowercase: true })
   public email?: string;
@@ -74,19 +69,18 @@ export class Actor {
   @Prop({ trim: true })
   public name?: string;
 }
-export const ActorSchema = SchemaFactory.createForClass(Actor);
+
 export type ActorDocument = HydratedDocument<Actor>;
-ActorSchema.index({ externalId: 1 });
 
 @NestSchema({
-  collection: MONGO_MODELS.collections.conversationSession,
+  collection: MONGO_SCHEMAS.collections.conversationSession,
   timestamps: true,
   versionKey: false,
 })
 export class ConversationSession {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.actor,
+    ref: MONGO_SCHEMAS.names.actor,
     required: true,
     index: true,
   })
@@ -95,19 +89,18 @@ export class ConversationSession {
   @Prop({ type: MongooseSchema.Types.Mixed })
   public metadata?: unknown;
 }
-export const ConversationSessionSchema = SchemaFactory.createForClass(ConversationSession);
+
 export type ConversationSessionDocument = HydratedDocument<ConversationSession>;
-ConversationSessionSchema.index({ actorId: 1, createdAt: 1 });
 
 @NestSchema({
-  collection: MONGO_MODELS.collections.conversationMessage,
+  collection: MONGO_SCHEMAS.collections.conversationMessage,
   timestamps: { createdAt: 'createdAt', updatedAt: false },
   versionKey: false,
 })
 export class ConversationMessage {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.actor,
+    ref: MONGO_SCHEMAS.names.actor,
     index: true,
     default: null,
   })
@@ -121,7 +114,7 @@ export class ConversationMessage {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.conversationSession,
+    ref: MONGO_SCHEMAS.names.conversationSession,
     required: true,
     index: true,
   })
@@ -130,20 +123,18 @@ export class ConversationMessage {
   @Prop({ default: false })
   public streamed?: boolean;
 }
-export const ConversationMessageSchema = SchemaFactory.createForClass(ConversationMessage);
+
 export type ConversationMessageDocument = HydratedDocument<ConversationMessage>;
-ConversationMessageSchema.index({ actorId: 1, createdAt: 1 });
-ConversationMessageSchema.index({ sessionId: 1, createdAt: 1 });
 
 @NestSchema({
-  collection: MONGO_MODELS.collections.operationDraft,
+  collection: MONGO_SCHEMAS.collections.operationDraft,
   timestamps: true,
   versionKey: false,
 })
 export class OperationDraft {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.actor,
+    ref: MONGO_SCHEMAS.names.actor,
     required: true,
     index: true,
   })
@@ -157,7 +148,7 @@ export class OperationDraft {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.conversationSession,
+    ref: MONGO_SCHEMAS.names.conversationSession,
     required: true,
     index: true,
   })
@@ -166,14 +157,11 @@ export class OperationDraft {
   @Prop({ enum: DRAFT_STATUSES, default: 'PENDING', index: true })
   public status!: (typeof DRAFT_STATUSES)[number];
 }
-export const OperationDraftSchema = SchemaFactory.createForClass(OperationDraft);
+
 export type OperationDraftDocument = HydratedDocument<OperationDraft>;
-OperationDraftSchema.index({ actorId: 1, createdAt: 1 });
-OperationDraftSchema.index({ sessionId: 1, createdAt: 1 });
-OperationDraftSchema.index({ status: 1, createdAt: 1 });
 
 @NestSchema({
-  collection: MONGO_MODELS.collections.operationDraftItem,
+  collection: MONGO_SCHEMAS.collections.operationDraftItem,
   timestamps: { createdAt: 'createdAt', updatedAt: false },
   versionKey: false,
 })
@@ -183,7 +171,7 @@ export class OperationDraftItem {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.operationDraft,
+    ref: MONGO_SCHEMAS.names.operationDraft,
     required: true,
     index: true,
   })
@@ -197,26 +185,24 @@ export class OperationDraftItem {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.product,
+    ref: MONGO_SCHEMAS.names.product,
     default: null,
     index: true,
   })
   public productId?: Types.ObjectId | null;
 }
-export const OperationDraftItemSchema = SchemaFactory.createForClass(OperationDraftItem);
+
 export type OperationDraftItemDocument = HydratedDocument<OperationDraftItem>;
-OperationDraftItemSchema.index({ productId: 1 });
-OperationDraftItemSchema.index({ draftId: 1, position: 1 }, { unique: true });
 
 @NestSchema({
-  collection: MONGO_MODELS.collections.draftDecision,
+  collection: MONGO_SCHEMAS.collections.draftDecision,
   timestamps: { createdAt: 'createdAt', updatedAt: false },
   versionKey: false,
 })
 export class DraftDecision {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.actor,
+    ref: MONGO_SCHEMAS.names.actor,
     required: true,
     index: true,
   })
@@ -227,7 +213,7 @@ export class DraftDecision {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.operationDraft,
+    ref: MONGO_SCHEMAS.names.operationDraft,
     required: true,
     unique: true,
   })
@@ -236,19 +222,18 @@ export class DraftDecision {
   @Prop({})
   public reason?: unknown;
 }
-export const DraftDecisionSchema = SchemaFactory.createForClass(DraftDecision);
+
 export type DraftDecisionDocument = HydratedDocument<DraftDecision>;
-DraftDecisionSchema.index({ actorId: 1, createdAt: 1 });
 
 @NestSchema({
-  collection: MONGO_MODELS.collections.operationExecution,
+  collection: MONGO_SCHEMAS.collections.operationExecution,
   timestamps: false,
   versionKey: false,
 })
 export class OperationExecution {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.operationDraft,
+    ref: MONGO_SCHEMAS.names.operationDraft,
     required: true,
     unique: true,
   })
@@ -269,19 +254,18 @@ export class OperationExecution {
   @Prop({ enum: EXECUTION_STATUSES, default: 'PENDING', index: true })
   public status!: (typeof EXECUTION_STATUSES)[number];
 }
-export const OperationExecutionSchema = SchemaFactory.createForClass(OperationExecution);
+
 export type OperationExecutionDocument = HydratedDocument<OperationExecution>;
-OperationExecutionSchema.index({ status: 1, startedAt: 1 });
 
 @NestSchema({
-  collection: MONGO_MODELS.collections.auditEvent,
+  collection: MONGO_SCHEMAS.collections.auditEvent,
   timestamps: { createdAt: 'createdAt', updatedAt: false },
   versionKey: false,
 })
 export class AuditEvent {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.actor,
+    ref: MONGO_SCHEMAS.names.actor,
     default: null,
     index: true,
   })
@@ -289,7 +273,7 @@ export class AuditEvent {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.operationDraft,
+    ref: MONGO_SCHEMAS.names.operationDraft,
     default: null,
     index: true,
   })
@@ -306,7 +290,7 @@ export class AuditEvent {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.operationExecution,
+    ref: MONGO_SCHEMAS.names.operationExecution,
     default: null,
     index: true,
   })
@@ -317,21 +301,16 @@ export class AuditEvent {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.conversationSession,
+    ref: MONGO_SCHEMAS.names.conversationSession,
     default: null,
     index: true,
   })
   public sessionId?: Types.ObjectId | null;
 }
-export const AuditEventSchema = SchemaFactory.createForClass(AuditEvent);
-export type AuditEventDocument = HydratedDocument<AuditEvent>;
-AuditEventSchema.index({ actorId: 1, createdAt: 1 });
-AuditEventSchema.index({ draftId: 1, createdAt: 1 });
-AuditEventSchema.index({ kind: 1, createdAt: 1 });
-AuditEventSchema.index({ operationExecutionId: 1, createdAt: 1 });
-AuditEventSchema.index({ sessionId: 1, createdAt: 1 });
 
-@NestSchema({ collection: MONGO_MODELS.collections.product, timestamps: true, versionKey: false })
+export type AuditEventDocument = HydratedDocument<AuditEvent>;
+
+@NestSchema({ collection: MONGO_SCHEMAS.collections.product, timestamps: true, versionKey: false })
 export class Product {
   @Prop({ type: Date, default: null, index: true })
   public deletedAt?: Date | null;
@@ -350,7 +329,7 @@ export class Product {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: MONGO_MODELS.names.product,
+    ref: MONGO_SCHEMAS.names.product,
     sparse: true,
     unique: true,
     default: null,
@@ -369,20 +348,194 @@ export class Product {
   @Prop({ default: 1 })
   public version?: number;
 }
-export const ProductSchema = SchemaFactory.createForClass(Product);
-export type ProductDocument = HydratedDocument<Product>;
-ProductSchema.index({ deletedAt: 1 });
-ProductSchema.index({ lineageKey: 1, version: 1 }, { unique: true });
-ProductSchema.index({ sku: 1, isCurrent: 1 });
 
-export const mongoModelDefinitions: ModelDefinition[] = [
-  { name: Actor.name, schema: ActorSchema },
-  { name: ConversationSession.name, schema: ConversationSessionSchema },
-  { name: ConversationMessage.name, schema: ConversationMessageSchema },
-  { name: OperationDraft.name, schema: OperationDraftSchema },
-  { name: OperationDraftItem.name, schema: OperationDraftItemSchema },
-  { name: DraftDecision.name, schema: DraftDecisionSchema },
-  { name: OperationExecution.name, schema: OperationExecutionSchema },
-  { name: AuditEvent.name, schema: AuditEventSchema },
-  { name: Product.name, schema: ProductSchema },
-];
+export type ProductDocument = HydratedDocument<Product>;
+
+export class MongoSchemaRegistry {
+  private static instance: MongoSchemaRegistry | undefined;
+
+  private actorSchema: MongooseSchemaType<Actor> | undefined;
+  private conversationSessionSchema: MongooseSchemaType<ConversationSession> | undefined;
+  private conversationMessageSchema: MongooseSchemaType<ConversationMessage> | undefined;
+  private operationDraftSchema: MongooseSchemaType<OperationDraft> | undefined;
+  private operationDraftItemSchema: MongooseSchemaType<OperationDraftItem> | undefined;
+  private draftDecisionSchema: MongooseSchemaType<DraftDecision> | undefined;
+  private operationExecutionSchema: MongooseSchemaType<OperationExecution> | undefined;
+  private auditEventSchema: MongooseSchemaType<AuditEvent> | undefined;
+  private productSchema: MongooseSchemaType<Product> | undefined;
+  private schemaDefinitions: NestSchemaDefinition[] | undefined;
+
+  private constructor() {
+    /* empty */
+  }
+
+  public static getInstance(): MongoSchemaRegistry {
+    MongoSchemaRegistry.instance ??= new MongoSchemaRegistry();
+    return MongoSchemaRegistry.instance;
+  }
+
+  public getActorSchema(): MongooseSchemaType<Actor> {
+    this.actorSchema ??= this.createActorSchema();
+    return this.actorSchema;
+  }
+
+  public getConversationSessionSchema(): MongooseSchemaType<ConversationSession> {
+    this.conversationSessionSchema ??= this.createConversationSessionSchema();
+    return this.conversationSessionSchema;
+  }
+
+  public getConversationMessageSchema(): MongooseSchemaType<ConversationMessage> {
+    this.conversationMessageSchema ??= this.createConversationMessageSchema();
+    return this.conversationMessageSchema;
+  }
+
+  public getOperationDraftSchema(): MongooseSchemaType<OperationDraft> {
+    this.operationDraftSchema ??= this.createOperationDraftSchema();
+    return this.operationDraftSchema;
+  }
+
+  public getOperationDraftItemSchema(): MongooseSchemaType<OperationDraftItem> {
+    this.operationDraftItemSchema ??= this.createOperationDraftItemSchema();
+    return this.operationDraftItemSchema;
+  }
+
+  public getDraftDecisionSchema(): MongooseSchemaType<DraftDecision> {
+    this.draftDecisionSchema ??= this.createDraftDecisionSchema();
+    return this.draftDecisionSchema;
+  }
+
+  public getOperationExecutionSchema(): MongooseSchemaType<OperationExecution> {
+    this.operationExecutionSchema ??= this.createOperationExecutionSchema();
+    return this.operationExecutionSchema;
+  }
+
+  public getAuditEventSchema(): MongooseSchemaType<AuditEvent> {
+    this.auditEventSchema ??= this.createAuditEventSchema();
+    return this.auditEventSchema;
+  }
+
+  public getProductSchema(): MongooseSchemaType<Product> {
+    this.productSchema ??= this.createProductSchema();
+    return this.productSchema;
+  }
+
+  public getSchemaDefinitions(): NestSchemaDefinition[] {
+    this.schemaDefinitions ??= [
+      this.createSchemaDefinition(MONGO_SCHEMAS.names.actor, this.getActorSchema()),
+      this.createSchemaDefinition(
+        MONGO_SCHEMAS.names.conversationSession,
+        this.getConversationSessionSchema(),
+      ),
+      this.createSchemaDefinition(
+        MONGO_SCHEMAS.names.conversationMessage,
+        this.getConversationMessageSchema(),
+      ),
+      this.createSchemaDefinition(
+        MONGO_SCHEMAS.names.operationDraft,
+        this.getOperationDraftSchema(),
+      ),
+      this.createSchemaDefinition(
+        MONGO_SCHEMAS.names.operationDraftItem,
+        this.getOperationDraftItemSchema(),
+      ),
+      this.createSchemaDefinition(MONGO_SCHEMAS.names.draftDecision, this.getDraftDecisionSchema()),
+      this.createSchemaDefinition(
+        MONGO_SCHEMAS.names.operationExecution,
+        this.getOperationExecutionSchema(),
+      ),
+      this.createSchemaDefinition(MONGO_SCHEMAS.names.auditEvent, this.getAuditEventSchema()),
+      this.createSchemaDefinition(MONGO_SCHEMAS.names.product, this.getProductSchema()),
+    ];
+
+    return this.schemaDefinitions;
+  }
+
+  private createSchemaDefinition(name: string, schema: MongooseSchemaType): NestSchemaDefinition {
+    return { name, schema };
+  }
+
+  private createActorSchema(): MongooseSchemaType<Actor> {
+    const schema = SchemaFactory.createForClass(Actor);
+    schema.index({ externalId: 1 });
+    return schema;
+  }
+
+  private createConversationSessionSchema(): MongooseSchemaType<ConversationSession> {
+    const schema = SchemaFactory.createForClass(ConversationSession);
+    schema.index({ actorId: 1, createdAt: 1 });
+    return schema;
+  }
+
+  private createConversationMessageSchema(): MongooseSchemaType<ConversationMessage> {
+    const schema = SchemaFactory.createForClass(ConversationMessage);
+    schema.index({ actorId: 1, createdAt: 1 });
+    schema.index({ sessionId: 1, createdAt: 1 });
+    return schema;
+  }
+
+  private createOperationDraftSchema(): MongooseSchemaType<OperationDraft> {
+    const schema = SchemaFactory.createForClass(OperationDraft);
+    schema.index({ actorId: 1, createdAt: 1 });
+    schema.index({ sessionId: 1, createdAt: 1 });
+    schema.index({ status: 1, createdAt: 1 });
+    return schema;
+  }
+
+  private createOperationDraftItemSchema(): MongooseSchemaType<OperationDraftItem> {
+    const schema = SchemaFactory.createForClass(OperationDraftItem);
+    schema.index({ productId: 1 });
+    schema.index({ draftId: 1, position: 1 }, { unique: true });
+    return schema;
+  }
+
+  private createDraftDecisionSchema(): MongooseSchemaType<DraftDecision> {
+    const schema = SchemaFactory.createForClass(DraftDecision);
+    schema.index({ actorId: 1, createdAt: 1 });
+    return schema;
+  }
+
+  private createOperationExecutionSchema(): MongooseSchemaType<OperationExecution> {
+    const schema = SchemaFactory.createForClass(OperationExecution);
+    schema.index({ status: 1, startedAt: 1 });
+    return schema;
+  }
+
+  private createAuditEventSchema(): MongooseSchemaType<AuditEvent> {
+    const schema = SchemaFactory.createForClass(AuditEvent);
+    schema.index({ actorId: 1, createdAt: 1 });
+    schema.index({ draftId: 1, createdAt: 1 });
+    schema.index({ kind: 1, createdAt: 1 });
+    schema.index({ operationExecutionId: 1, createdAt: 1 });
+    schema.index({ sessionId: 1, createdAt: 1 });
+    return schema;
+  }
+
+  private createProductSchema(): MongooseSchemaType<Product> {
+    const schema = SchemaFactory.createForClass(Product);
+    schema.index({ deletedAt: 1 });
+    schema.index({ lineageKey: 1, version: 1 }, { unique: true });
+    schema.index({ sku: 1, isCurrent: 1 });
+    return schema;
+  }
+}
+
+export function getMongoSchemaRegistry(): MongoSchemaRegistry {
+  return MongoSchemaRegistry.getInstance();
+}
+
+export const mongoSchemaRegistry = getMongoSchemaRegistry();
+
+export const mongoSchemas = Object.freeze({
+  actor: mongoSchemaRegistry.getActorSchema(),
+  conversationSession: mongoSchemaRegistry.getConversationSessionSchema(),
+  conversationMessage: mongoSchemaRegistry.getConversationMessageSchema(),
+  operationDraft: mongoSchemaRegistry.getOperationDraftSchema(),
+  operationDraftItem: mongoSchemaRegistry.getOperationDraftItemSchema(),
+  draftDecision: mongoSchemaRegistry.getDraftDecisionSchema(),
+  operationExecution: mongoSchemaRegistry.getOperationExecutionSchema(),
+  auditEvent: mongoSchemaRegistry.getAuditEventSchema(),
+  product: mongoSchemaRegistry.getProductSchema(),
+});
+
+export const mongoSchemaDefinitions: NestSchemaDefinition[] =
+  mongoSchemaRegistry.getSchemaDefinitions();

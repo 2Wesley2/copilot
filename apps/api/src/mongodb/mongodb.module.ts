@@ -7,7 +7,7 @@ import { PERSISTENCE, type PersistenceProfile } from '../persistence/persistence
 import type { PersistenceModuleStrategy } from '../persistence/persistence.module.js';
 import { stopInMemoryMongoServer } from './mongodb.inmemory.js';
 import { resolveMongoRuntime } from './mongodb.runtime.js';
-import { mongoModelDefinitions } from './mongoose.schemas.js';
+import { mongoSchemaDefinitions } from './mongoose.schemas.js';
 
 @Injectable()
 class MongoLifecycleService implements OnApplicationShutdown {
@@ -47,7 +47,7 @@ export class MongoPersistenceModule {
             return { uri: runtime.uri };
           },
         }),
-        MongooseModule.forFeature(mongoModelDefinitions),
+        MongooseModule.forFeature(mongoSchemaDefinitions),
       ],
       providers: [MongoLifecycleService],
       exports: [MongooseModule],

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import { MONGO_MODELS } from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
 import type { ConversationSession } from '../../../conversation-session.entity.js';
 import type { ConversationSessionRepository } from '../../../conversation-session.repository.js';
 import {
@@ -15,7 +15,7 @@ import {
 @Injectable()
 export class MongooseConversationSessionRepositoryAdapter implements ConversationSessionRepository {
   public constructor(
-    @InjectModel(MONGO_MODELS.names.conversationSession)
+    @InjectModel(MONGO_SCHEMAS.names.conversationSession)
     private readonly conversationSessionModel: Model<MongooseConversationSessionPersistence>,
     private readonly conversationSessionMapper: MongooseConversationSessionMapper,
   ) {}

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import { MONGO_MODELS } from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
 import type { OperationExecution } from '../../../operation-execution.entity.js';
 import type { OperationExecutionRepository } from '../../../operation-execution.repository.js';
 import {
@@ -15,7 +15,7 @@ import {
 @Injectable()
 export class MongooseOperationExecutionRepositoryAdapter implements OperationExecutionRepository {
   public constructor(
-    @InjectModel(MONGO_MODELS.names.operationExecution)
+    @InjectModel(MONGO_SCHEMAS.names.operationExecution)
     private readonly operationExecutionModel: Model<MongooseOperationExecutionPersistence>,
     private readonly operationExecutionMapper: MongooseOperationExecutionMapper,
   ) {}

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import { MONGO_MODELS } from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
 import type { AuditEvent } from '../../../audit-event.entity.js';
 import type { AuditEventRepository } from '../../../audit-event.repository.js';
 import {
@@ -15,7 +15,7 @@ import {
 @Injectable()
 export class MongooseAuditEventRepositoryAdapter implements AuditEventRepository {
   public constructor(
-    @InjectModel(MONGO_MODELS.names.auditEvent)
+    @InjectModel(MONGO_SCHEMAS.names.auditEvent)
     private readonly auditEventModel: Model<MongooseAuditEventPersistence>,
     private readonly auditEventMapper: MongooseAuditEventMapper,
   ) {}

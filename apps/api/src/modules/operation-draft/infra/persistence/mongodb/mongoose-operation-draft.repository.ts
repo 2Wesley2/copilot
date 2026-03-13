@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import { MONGO_MODELS } from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
 import type { OperationDraft } from '../../../operation-draft.entity.js';
 import type { OperationDraftRepository } from '../../../operation-draft.repository.js';
 import {
@@ -15,7 +15,7 @@ import {
 @Injectable()
 export class MongooseOperationDraftRepositoryAdapter implements OperationDraftRepository {
   public constructor(
-    @InjectModel(MONGO_MODELS.names.operationDraft)
+    @InjectModel(MONGO_SCHEMAS.names.operationDraft)
     private readonly operationDraftModel: Model<MongooseOperationDraftPersistence>,
     private readonly operationDraftMapper: MongooseOperationDraftMapper,
   ) {}
