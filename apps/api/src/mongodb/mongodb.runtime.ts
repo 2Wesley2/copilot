@@ -16,8 +16,8 @@ import {
 } from './mongodb.validators.js';
 
 const MONGO_RUNTIME_NODE_ENVS = Object.freeze({
-  atlas: new Set(['production', 'staging']),
-  localLike: new Set(['development', 'test']),
+  atlas: new Set<string>(['production', 'staging']),
+  localLike: new Set<string>(['development', 'test']),
 });
 
 export interface MongoRuntimeConfig {
@@ -39,7 +39,7 @@ interface MongoModeStrategy {
 
 abstract class BaseMongoModeStrategy implements MongoModeStrategy {
   public constructor(
-    readonly mode: DbMode,
+    public readonly mode: DbMode,
     private readonly allowedNodeEnvs: Set<string>,
   ) {}
 
@@ -51,7 +51,7 @@ abstract class BaseMongoModeStrategy implements MongoModeStrategy {
     return requireConfiguredUriAsync(this.mode, configuredUri);
   }
 
-  abstract resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error>;
+  public abstract resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error>;
 }
 
 class InMemoryMongoModeStrategy extends BaseMongoModeStrategy {
@@ -95,23 +95,51 @@ class AtlasMongoModeStrategy extends BaseMongoModeStrategy {
   }
 }
 
-const createAtlasMongoModeStrategy = () => new AtlasMongoModeStrategy();
-const createInMemoryMongoModeStrategy = () => new InMemoryMongoModeStrategy();
-const createLocalMongoModeStrategy = () => new LocalMongoModeStrategy();
+const createAtlasMongoModeStrategy = (): MongoModeStrategy => new AtlasMongoModeStrategy();
+const createInMemoryMongoModeStrategy = (): MongoModeStrategy => new InMemoryMongoModeStrategy();
+const createLocalMongoModeStrategy = (): MongoModeStrategy => new LocalMongoModeStrategy();
 
-const mongoModeStrategies: Record<DbMode, MongoModeStrategy> = {
-  atlas: createAtlasMongoModeStrategy(),
-  inmemory: createInMemoryMongoModeStrategy(),
-  local: createLocalMongoModeStrategy(),
-};
+class MongoRuntimeStrategyRegistry {
+  private static instance: MongoRuntimeStrategyRegistry | undefined;
+
+  private readonly strategies: Record<DbMode, MongoModeStrategy>;
+
+  private constructor() {
+    this.strategies = {
+      atlas: createAtlasMongoModeStrategy(),
+      inmemory: createInMemoryMongoModeStrategy(),
+      local: createLocalMongoModeStrategy(),
+    };
+  }
+  private static createMongoRuntimeStrategyRegistry() {
+    return new MongoRuntimeStrategyRegistry();
+  }
+
+  public static getInstance(): MongoRuntimeStrategyRegistry {
+    MongoRuntimeStrategyRegistry.instance ??=
+      MongoRuntimeStrategyRegistry.createMongoRuntimeStrategyRegistry();
+    return MongoRuntimeStrategyRegistry.instance;
+  }
+
+  public getStrategy(mode: DbMode): MongoModeStrategy {
+    return this.strategies[mode];
+  }
+}
+
+function getMongoRuntimeStrategyRegistry(): MongoRuntimeStrategyRegistry {
+  return MongoRuntimeStrategyRegistry.getInstance();
+}
 
 export function resolveMongoRuntime(
   env: RuntimeEnv,
   purpose: RuntimePurpose = MONGO_ENVIRONMENT.runtimePurposes.application,
 ): AsyncResult<MongoRuntimeConfig, Error> {
+  const strategyRegistry = getMongoRuntimeStrategyRegistry();
+
   return errorHandler.fromResult(resolveMongoEnvironment(env, purpose)).andThen((environment) => {
     const { configuredUri, mode, nodeEnv } = environment;
-    const strategy = mongoModeStrategies[mode];
+    const strategy = strategyRegistry.getStrategy(mode);
+
     const context: MongoRuntimeContext = {
       configuredUri,
       nodeEnv,

@@ -15,24 +15,47 @@ export interface PersistenceModuleStrategy {
   createModule(): DynamicModule;
 }
 
-const persistenceStrategies: PersistenceModuleStrategy[] = [
-  createMongoMongoosePersistenceStrategy(),
-];
+class PersistenceStrategyRegistry {
+  private static instance: PersistenceStrategyRegistry | undefined;
+
+  private readonly strategies: PersistenceModuleStrategy[];
+
+  private constructor() {
+    this.strategies = [createMongoMongoosePersistenceStrategy()];
+  }
+
+  private static create() {
+    return new PersistenceStrategyRegistry();
+  }
+
+  public static getInstance(): PersistenceStrategyRegistry {
+    PersistenceStrategyRegistry.instance ??= PersistenceStrategyRegistry.create();
+    return PersistenceStrategyRegistry.instance;
+  }
+
+  public resolve(profile: PersistenceProfile): Result<PersistenceModuleStrategy, Error> {
+    for (const strategy of this.strategies) {
+      if (strategy.supports(profile)) {
+        return errorHandler.ok(strategy);
+      }
+    }
+
+    return errorHandler.err(
+      createError(
+        `Nenhuma estratégia de persistência encontrada para technology=${profile.technology} e mappingStyle=${profile.mappingStyle}.`,
+      ),
+    );
+  }
+}
+
+function getPersistenceStrategyRegistry(): PersistenceStrategyRegistry {
+  return PersistenceStrategyRegistry.getInstance();
+}
 
 function resolvePersistenceStrategy(
   profile: PersistenceProfile,
 ): Result<PersistenceModuleStrategy, Error> {
-  for (const strategy of persistenceStrategies) {
-    if (strategy.supports(profile)) {
-      return errorHandler.ok(strategy);
-    }
-  }
-
-  return errorHandler.err(
-    createError(
-      `Nenhuma estratégia de persistência encontrada para technology=${profile.technology} e mappingStyle=${profile.mappingStyle}.`,
-    ),
-  );
+  return getPersistenceStrategyRegistry().resolve(profile);
 }
 
 function resolvePersistenceDynamicModule(env: PersistenceRuntimeEnv = process.env): DynamicModule {
@@ -88,7 +111,7 @@ export function PersistenceModuleDecorator(
 
 @PersistenceModuleDecorator()
 export class PersistenceModule {
-  static register(env: PersistenceRuntimeEnv = process.env): DynamicModule {
+  public static register(env: PersistenceRuntimeEnv = process.env): DynamicModule {
     return resolvePersistenceDynamicModule(env);
   }
 }
