@@ -35,8 +35,8 @@ interface EnvironmentValueReaderParams {
   readonly env: PersistenceRuntimeEnv;
 }
 class EnvironmentValueReader {
-  constructor(private readonly params: EnvironmentValueReaderParams) {}
-  readLowercase(key: string): string | undefined {
+  public constructor(private readonly params: EnvironmentValueReaderParams) {}
+  public readLowercase(key: string): string | undefined {
     const value = this.params.env[key]?.trim().toLowerCase();
     if (value === undefined || value === '') {
       return undefined;
@@ -55,10 +55,10 @@ class ExactMatchEnvironmentOptionStrategy<
   TValue extends string,
 > implements EnvironmentOptionStrategy<TValue> {
   public readonly value: TValue;
-  constructor(params: ExactMatchEnvironmentOptionStrategyParams<TValue>) {
+  public constructor(params: ExactMatchEnvironmentOptionStrategyParams<TValue>) {
     this.value = params.value;
   }
-  matches(rawValue: string): boolean {
+  public matches(rawValue: string): boolean {
     return rawValue === this.value;
   }
 }
@@ -66,8 +66,8 @@ interface EnvironmentOptionRegistryParams<TValue extends string> {
   readonly strategies: EnvironmentOptionStrategy<TValue>[];
 }
 class EnvironmentOptionRegistry<TValue extends string> {
-  constructor(private readonly params: EnvironmentOptionRegistryParams<TValue>) {}
-  resolve(rawValue: string): Result<TValue, Error> {
+  public constructor(private readonly params: EnvironmentOptionRegistryParams<TValue>) {}
+  public resolve(rawValue: string): Result<TValue, Error> {
     for (const strategy of this.params.strategies) {
       if (strategy.matches(rawValue)) {
         return errorHandler.ok(strategy.value);
@@ -92,8 +92,8 @@ interface EnvironmentOptionResolverParams<TValue extends string> {
   readonly registry: EnvironmentOptionRegistry<TValue>;
 }
 class EnvironmentOptionResolver<TValue extends string> {
-  constructor(private readonly params: EnvironmentOptionResolverParams<TValue>) {}
-  resolve(): Result<TValue, Error> {
+  public constructor(private readonly params: EnvironmentOptionResolverParams<TValue>) {}
+  public resolve(): Result<TValue, Error> {
     const rawValue = this.params.reader.readLowercase(this.params.key);
     if (rawValue === undefined) {
       return errorHandler.ok(this.params.defaultValue);
@@ -108,8 +108,8 @@ interface PersistenceProfileResolverParams {
   readonly technologyResolver: EnvironmentOptionResolver<PersistenceTechnology>;
 }
 class PersistenceProfileResolver {
-  constructor(private readonly params: PersistenceProfileResolverParams) {}
-  resolve(): Result<PersistenceProfile, Error> {
+  public constructor(private readonly params: PersistenceProfileResolverParams) {}
+  public resolve(): Result<PersistenceProfile, Error> {
     return this.params.technologyResolver
       .resolve()
       .andThen((technology) =>
@@ -139,7 +139,7 @@ const createEnvironmentValueReader = (params: EnvironmentValueReaderParams) =>
   new EnvironmentValueReader(params);
 
 class PersistenceEnvironmentFactory {
-  createProfileResolver(env: PersistenceRuntimeEnv): PersistenceProfileResolver {
+  public createProfileResolver(env: PersistenceRuntimeEnv): PersistenceProfileResolver {
     const reader = this.createEnvironmentValueReader(env);
     return createPersistenceProfileResolver({
       mappingStyleResolver: this.createMappingStyleResolver(reader),

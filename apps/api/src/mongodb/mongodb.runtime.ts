@@ -38,8 +38,8 @@ interface MongoModeStrategy {
 }
 
 abstract class BaseMongoModeStrategy implements MongoModeStrategy {
-  constructor(
-    public readonly mode: DbMode,
+  public constructor(
+    readonly mode: DbMode,
     private readonly allowedNodeEnvs: Set<string>,
   ) {}
 
@@ -55,11 +55,11 @@ abstract class BaseMongoModeStrategy implements MongoModeStrategy {
 }
 
 class InMemoryMongoModeStrategy extends BaseMongoModeStrategy {
-  constructor() {
+  public constructor() {
     super(MONGO_ENVIRONMENT.dbModes.inmemory, MONGO_RUNTIME_NODE_ENVS.localLike);
   }
 
-  resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error> {
+  public resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error> {
     return this.ensureAllowedNodeEnv(context.nodeEnv)
       .andThen(() =>
         context.purpose === MONGO_ENVIRONMENT.runtimePurposes.application
@@ -72,11 +72,11 @@ class InMemoryMongoModeStrategy extends BaseMongoModeStrategy {
 }
 
 class LocalMongoModeStrategy extends BaseMongoModeStrategy {
-  constructor() {
+  public constructor() {
     super(MONGO_ENVIRONMENT.dbModes.local, MONGO_RUNTIME_NODE_ENVS.localLike);
   }
 
-  resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error> {
+  public resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error> {
     return this.ensureAllowedNodeEnv(context.nodeEnv)
       .andThen(() => this.getRequiredUri(context.configuredUri))
       .andThen((configuredUri) => validateLocalUriAsync(configuredUri));
@@ -84,11 +84,11 @@ class LocalMongoModeStrategy extends BaseMongoModeStrategy {
 }
 
 class AtlasMongoModeStrategy extends BaseMongoModeStrategy {
-  constructor() {
+  public constructor() {
     super(MONGO_ENVIRONMENT.dbModes.atlas, MONGO_RUNTIME_NODE_ENVS.atlas);
   }
 
-  resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error> {
+  public resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error> {
     return this.ensureAllowedNodeEnv(context.nodeEnv)
       .andThen(() => this.getRequiredUri(context.configuredUri))
       .andThen((configuredUri) => validateAtlasUriAsync(configuredUri));

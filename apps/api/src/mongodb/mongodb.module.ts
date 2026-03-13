@@ -11,7 +11,7 @@ import { mongoModelDefinitions } from './mongoose.schemas.js';
 
 @Injectable()
 class MongoLifecycleService implements OnApplicationShutdown {
-  async onApplicationShutdown(): Promise<void> {
+  public async onApplicationShutdown(): Promise<void> {
     await stopInMemoryMongoServer().match(
       () => undefined,
       (error) => {
@@ -24,7 +24,7 @@ class MongoLifecycleService implements OnApplicationShutdown {
 @Global()
 @Module({})
 export class MongoPersistenceModule {
-  static register(): DynamicModule {
+  public static register(): DynamicModule {
     return {
       module: MongoPersistenceModule,
       imports: [

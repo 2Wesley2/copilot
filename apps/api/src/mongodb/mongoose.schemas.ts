@@ -66,13 +66,13 @@ export const MONGO_MODELS: MongoModelCatalog = Object.freeze({
 @NestSchema({ collection: MONGO_MODELS.collections.actor, timestamps: true, versionKey: false })
 export class Actor {
   @Prop({ trim: true, lowercase: true })
-  email?: string;
+  public email?: string;
 
   @Prop({ trim: true, unique: true, sparse: true })
-  externalId?: string;
+  public externalId?: string;
 
   @Prop({ trim: true })
-  name?: string;
+  public name?: string;
 }
 export const ActorSchema = SchemaFactory.createForClass(Actor);
 export type ActorDocument = HydratedDocument<Actor>;
@@ -90,10 +90,10 @@ export class ConversationSession {
     required: true,
     index: true,
   })
-  actorId!: Types.ObjectId;
+  public actorId!: Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.Mixed })
-  metadata?: unknown;
+  public metadata?: unknown;
 }
 export const ConversationSessionSchema = SchemaFactory.createForClass(ConversationSession);
 export type ConversationSessionDocument = HydratedDocument<ConversationSession>;
@@ -111,13 +111,13 @@ export class ConversationMessage {
     index: true,
     default: null,
   })
-  actorId?: Types.ObjectId | null;
+  public actorId?: Types.ObjectId | null;
 
   @Prop({ required: true })
-  content!: string;
+  public content!: string;
 
   @Prop({ enum: MESSAGE_ROLES, required: true })
-  role!: (typeof MESSAGE_ROLES)[number];
+  public role!: (typeof MESSAGE_ROLES)[number];
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -125,10 +125,10 @@ export class ConversationMessage {
     required: true,
     index: true,
   })
-  sessionId!: Types.ObjectId;
+  public sessionId!: Types.ObjectId;
 
   @Prop({ default: false })
-  streamed?: boolean;
+  public streamed?: boolean;
 }
 export const ConversationMessageSchema = SchemaFactory.createForClass(ConversationMessage);
 export type ConversationMessageDocument = HydratedDocument<ConversationMessage>;
@@ -147,13 +147,13 @@ export class OperationDraft {
     required: true,
     index: true,
   })
-  actorId!: Types.ObjectId;
+  public actorId!: Types.ObjectId;
 
   @Prop({ required: true, trim: true })
-  intent!: string;
+  public intent!: string;
 
   @Prop({ type: MongooseSchema.Types.Mixed, required: true })
-  payload!: unknown;
+  public payload!: unknown;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -161,10 +161,10 @@ export class OperationDraft {
     required: true,
     index: true,
   })
-  sessionId!: Types.ObjectId;
+  public sessionId!: Types.ObjectId;
 
   @Prop({ enum: DRAFT_STATUSES, default: 'PENDING', index: true })
-  status!: (typeof DRAFT_STATUSES)[number];
+  public status!: (typeof DRAFT_STATUSES)[number];
 }
 export const OperationDraftSchema = SchemaFactory.createForClass(OperationDraft);
 export type OperationDraftDocument = HydratedDocument<OperationDraft>;
@@ -179,7 +179,7 @@ OperationDraftSchema.index({ status: 1, createdAt: 1 });
 })
 export class OperationDraftItem {
   @Prop({ enum: DRAFT_ITEM_ACTIONS, required: true })
-  action!: (typeof DRAFT_ITEM_ACTIONS)[number];
+  public action!: (typeof DRAFT_ITEM_ACTIONS)[number];
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -187,13 +187,13 @@ export class OperationDraftItem {
     required: true,
     index: true,
   })
-  draftId!: Types.ObjectId;
+  public draftId!: Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.Mixed, required: true })
-  payload!: unknown;
+  public payload!: unknown;
 
   @Prop({ default: 0 })
-  position!: number;
+  public position!: number;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -201,7 +201,7 @@ export class OperationDraftItem {
     default: null,
     index: true,
   })
-  productId?: Types.ObjectId | null;
+  public productId?: Types.ObjectId | null;
 }
 export const OperationDraftItemSchema = SchemaFactory.createForClass(OperationDraftItem);
 export type OperationDraftItemDocument = HydratedDocument<OperationDraftItem>;
@@ -220,10 +220,10 @@ export class DraftDecision {
     required: true,
     index: true,
   })
-  actorId!: Types.ObjectId;
+  public actorId!: Types.ObjectId;
 
   @Prop({ required: true })
-  approved!: boolean;
+  public approved!: boolean;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -231,10 +231,10 @@ export class DraftDecision {
     required: true,
     unique: true,
   })
-  draftId!: Types.ObjectId;
+  public draftId!: Types.ObjectId;
 
   @Prop({})
-  reason?: unknown;
+  public reason?: unknown;
 }
 export const DraftDecisionSchema = SchemaFactory.createForClass(DraftDecision);
 export type DraftDecisionDocument = HydratedDocument<DraftDecision>;
@@ -252,22 +252,22 @@ export class OperationExecution {
     required: true,
     unique: true,
   })
-  draftId!: Types.ObjectId;
+  public draftId!: Types.ObjectId;
 
   @Prop({})
-  errorMessage?: unknown;
+  public errorMessage?: unknown;
 
   @Prop({})
-  finishedAt?: unknown;
+  public finishedAt?: unknown;
 
   @Prop({ type: MongooseSchema.Types.Mixed })
-  result?: unknown;
+  public result?: unknown;
 
   @Prop({})
-  startedAt?: unknown;
+  public startedAt?: unknown;
 
   @Prop({ enum: EXECUTION_STATUSES, default: 'PENDING', index: true })
-  status!: (typeof EXECUTION_STATUSES)[number];
+  public status!: (typeof EXECUTION_STATUSES)[number];
 }
 export const OperationExecutionSchema = SchemaFactory.createForClass(OperationExecution);
 export type OperationExecutionDocument = HydratedDocument<OperationExecution>;
@@ -285,7 +285,7 @@ export class AuditEvent {
     default: null,
     index: true,
   })
-  actorId?: Types.ObjectId | null;
+  public actorId?: Types.ObjectId | null;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -293,16 +293,16 @@ export class AuditEvent {
     default: null,
     index: true,
   })
-  draftId?: Types.ObjectId | null;
+  public draftId?: Types.ObjectId | null;
 
   @Prop({ trim: true })
-  entityId?: string;
+  public entityId?: string;
 
   @Prop({ trim: true })
-  entityType?: string;
+  public entityType?: string;
 
   @Prop({ required: true, trim: true, index: true })
-  kind!: string;
+  public kind!: string;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -310,10 +310,10 @@ export class AuditEvent {
     default: null,
     index: true,
   })
-  operationExecutionId?: Types.ObjectId | null;
+  public operationExecutionId?: Types.ObjectId | null;
 
   @Prop({ type: MongooseSchema.Types.Mixed })
-  payload?: unknown;
+  public payload?: unknown;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -321,7 +321,7 @@ export class AuditEvent {
     default: null,
     index: true,
   })
-  sessionId?: Types.ObjectId | null;
+  public sessionId?: Types.ObjectId | null;
 }
 export const AuditEventSchema = SchemaFactory.createForClass(AuditEvent);
 export type AuditEventDocument = HydratedDocument<AuditEvent>;
@@ -334,19 +334,19 @@ AuditEventSchema.index({ sessionId: 1, createdAt: 1 });
 @NestSchema({ collection: MONGO_MODELS.collections.product, timestamps: true, versionKey: false })
 export class Product {
   @Prop({ type: Date, default: null, index: true })
-  deletedAt?: Date | null;
+  public deletedAt?: Date | null;
 
   @Prop({})
-  description?: unknown;
+  public description?: unknown;
 
   @Prop({ default: true, index: true })
-  isCurrent?: boolean;
+  public isCurrent?: boolean;
 
   @Prop({ default: (): string => new Types.ObjectId().toHexString() })
-  lineageKey?: string;
+  public lineageKey?: string;
 
   @Prop({ required: true, trim: true })
-  name!: string;
+  public name!: string;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -355,19 +355,19 @@ export class Product {
     unique: true,
     default: null,
   })
-  previousVersionId?: Types.ObjectId | null;
+  public previousVersionId?: Types.ObjectId | null;
 
   @Prop({ default: 0 })
-  priceCents?: number;
+  public priceCents?: number;
 
   @Prop({ required: true, trim: true, index: true })
-  sku!: string;
+  public sku!: string;
 
   @Prop({ default: 0 })
-  stock?: number;
+  public stock?: number;
 
   @Prop({ default: 1 })
-  version?: number;
+  public version?: number;
 }
 export const ProductSchema = SchemaFactory.createForClass(Product);
 export type ProductDocument = HydratedDocument<Product>;

@@ -39,7 +39,7 @@ export const MONGO_ENVIRONMENT: MongoEnvironmentCatalog = Object.freeze({
 });
 
 class MongoEnvironmentVariables {
-  constructor(private readonly env: RuntimeEnv) {}
+  public constructor(private readonly env: RuntimeEnv) {}
 
   private read(name: string): string | undefined {
     const value = this.env[name]?.trim();
@@ -78,11 +78,7 @@ const createMongoEnvironmentVariables = (env: RuntimeEnv): MongoEnvironmentVaria
   new MongoEnvironmentVariables(env);
 
 class MongoDbMode {
-  private constructor(readonly value: DbMode) {}
-
-  public static createMongoDbMode(value: DbMode): MongoDbMode {
-    return new MongoDbMode(value);
-  }
+  public constructor(readonly value: DbMode) {}
 
   public static parse(rawMode: string | undefined): Result<MongoDbMode, Error> {
     if (rawMode === undefined) {
@@ -90,15 +86,15 @@ class MongoDbMode {
     }
 
     if (rawMode === MONGO_ENVIRONMENT.dbModes.inmemory) {
-      return errorHandler.ok(MongoDbMode.createMongoDbMode(MONGO_ENVIRONMENT.dbModes.inmemory));
+      return errorHandler.ok(createMongoDbMode(MONGO_ENVIRONMENT.dbModes.inmemory));
     }
 
     if (rawMode === MONGO_ENVIRONMENT.dbModes.local) {
-      return errorHandler.ok(MongoDbMode.createMongoDbMode(MONGO_ENVIRONMENT.dbModes.local));
+      return errorHandler.ok(createMongoDbMode(MONGO_ENVIRONMENT.dbModes.local));
     }
 
     if (rawMode === MONGO_ENVIRONMENT.dbModes.atlas) {
-      return errorHandler.ok(MongoDbMode.createMongoDbMode(MONGO_ENVIRONMENT.dbModes.atlas));
+      return errorHandler.ok(createMongoDbMode(MONGO_ENVIRONMENT.dbModes.atlas));
     }
 
     return errorHandler.err(createInvalidDbModeError(rawMode));
@@ -120,6 +116,7 @@ class MongoDbMode {
     return this.value === MONGO_ENVIRONMENT.dbModes.atlas;
   }
 }
+const createMongoDbMode = (value: DbMode): MongoDbMode => new MongoDbMode(value);
 
 interface ResolvedMongoEnvironmentParams {
   configuredUri: string | undefined;
@@ -147,12 +144,12 @@ const createResolvedMongoEnvironment = (
 ): ResolvedMongoEnvironment => new ResolvedMongoEnvironment(params);
 
 class MongoEnvironmentResolver {
-  constructor(
+  public constructor(
     private readonly variables: MongoEnvironmentVariables,
     private readonly purpose: RuntimePurpose,
   ) {}
 
-  resolve(): Result<MongoEnvironmentConfig, Error> {
+  public resolve(): Result<MongoEnvironmentConfig, Error> {
     const nodeEnv = this.variables.getNodeEnv();
     const configuredUri = this.variables.getConfiguredUri();
 
