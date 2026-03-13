@@ -9,20 +9,20 @@ import {
 
 @Injectable()
 export class ConversationSessionService {
-  constructor(
+  public constructor(
     @Inject(CONVERSATION_SESSION_REPOSITORY)
     private readonly repository: ConversationSessionRepository,
   ) {}
 
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return { ok: true };
   }
 
-  findById(sessionId: string): AsyncResult<ConversationSession | null, Error> {
+  public findById(sessionId: string): AsyncResult<ConversationSession | null, Error> {
     return this.repository.findById(sessionId);
   }
 
-  save(session: ConversationSession): AsyncResult<void, Error> {
+  public save(session: ConversationSession): AsyncResult<void, Error> {
     return this.repository.save(session);
   }
 }

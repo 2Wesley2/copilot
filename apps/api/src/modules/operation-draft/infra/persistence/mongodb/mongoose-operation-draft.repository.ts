@@ -14,16 +14,17 @@ import {
 
 @Injectable()
 export class MongooseOperationDraftRepositoryAdapter implements OperationDraftRepository {
-  constructor(
+  public constructor(
     @InjectModel(MONGO_MODELS.names.operationDraft)
     private readonly operationDraftModel: Model<MongooseOperationDraftPersistence>,
     private readonly operationDraftMapper: MongooseOperationDraftMapper,
   ) {}
 
-  findById(draftId: string): AsyncResult<OperationDraft | null, Error> {
+  public findById(draftId: string): AsyncResult<OperationDraft | null, Error> {
     return errorHandler.fromPromise(async () => {
-      const document: MongooseOperationDraftDocument | null =
-        await this.operationDraftModel.findById(draftId).exec();
+      const document: MongooseOperationDraftDocument | null = await this.operationDraftModel
+        .findById(draftId)
+        .exec();
 
       if (document === null) {
         return null;
@@ -33,7 +34,7 @@ export class MongooseOperationDraftRepositoryAdapter implements OperationDraftRe
     });
   }
 
-  save(draft: OperationDraft): AsyncResult<void, Error> {
+  public save(draft: OperationDraft): AsyncResult<void, Error> {
     return errorHandler.fromPromise(async () => {
       const persistence = this.operationDraftMapper.toPersistence(draft);
 

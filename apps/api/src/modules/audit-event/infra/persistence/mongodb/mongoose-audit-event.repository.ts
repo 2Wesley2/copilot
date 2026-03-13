@@ -14,13 +14,13 @@ import {
 
 @Injectable()
 export class MongooseAuditEventRepositoryAdapter implements AuditEventRepository {
-  constructor(
+  public constructor(
     @InjectModel(MONGO_MODELS.names.auditEvent)
     private readonly auditEventModel: Model<MongooseAuditEventPersistence>,
     private readonly auditEventMapper: MongooseAuditEventMapper,
   ) {}
 
-  findById(auditEventId: string): AsyncResult<AuditEvent | null, Error> {
+  public findById(auditEventId: string): AsyncResult<AuditEvent | null, Error> {
     return errorHandler.fromPromise(async () => {
       const document: MongooseAuditEventDocument | null = await this.auditEventModel
         .findById(auditEventId)
@@ -34,7 +34,7 @@ export class MongooseAuditEventRepositoryAdapter implements AuditEventRepository
     });
   }
 
-  save(event: AuditEvent): AsyncResult<void, Error> {
+  public save(event: AuditEvent): AsyncResult<void, Error> {
     return errorHandler.fromPromise(async () => {
       const persistence = this.auditEventMapper.toPersistence(event);
 

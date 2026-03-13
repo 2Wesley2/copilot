@@ -37,23 +37,19 @@ export class MongooseAuditEventMapper {
   }
 
   public toPersistence(event: AuditEvent): MongooseAuditEventPersistence {
-    const primitives = event.toPrimitives();
-
     return {
-      _id: new Types.ObjectId(primitives.id),
-      ...(isNullish(primitives.actorId) ? {} : { actorId: new Types.ObjectId(primitives.actorId) }),
-      ...(isNullish(primitives.draftId) ? {} : { draftId: new Types.ObjectId(primitives.draftId) }),
-      ...(isNullish(primitives.entityId) ? {} : { entityId: primitives.entityId }),
-      ...(isNullish(primitives.entityType) ? {} : { entityType: primitives.entityType }),
-      kind: primitives.kind,
-      ...(isNullish(primitives.operationExecutionId)
+      _id: new Types.ObjectId(event.id),
+      ...(isNullish(event.actorId) ? {} : { actorId: new Types.ObjectId(event.actorId) }),
+      ...(isNullish(event.draftId) ? {} : { draftId: new Types.ObjectId(event.draftId) }),
+      ...(isNullish(event.entityId) ? {} : { entityId: event.entityId }),
+      ...(isNullish(event.entityType) ? {} : { entityType: event.entityType }),
+      kind: event.kind,
+      ...(isNullish(event.operationExecutionId)
         ? {}
-        : { operationExecutionId: new Types.ObjectId(primitives.operationExecutionId) }),
-      ...(isNullish(primitives.payload) ? {} : { payload: primitives.payload }),
-      ...(isNullish(primitives.sessionId)
-        ? {}
-        : { sessionId: new Types.ObjectId(primitives.sessionId) }),
-      createdAt: primitives.createdAt,
+        : { operationExecutionId: new Types.ObjectId(event.operationExecutionId) }),
+      ...(isNullish(event.payload) ? {} : { payload: event.payload }),
+      ...(isNullish(event.sessionId) ? {} : { sessionId: new Types.ObjectId(event.sessionId) }),
+      createdAt: event.createdAt,
     };
   }
 }

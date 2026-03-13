@@ -20,7 +20,7 @@ export type MongooseOperationDraftItemDocument =
   HydratedDocument<MongooseOperationDraftItemPersistence>;
 
 export class MongooseOperationDraftItemMapper {
-  toDomain(document: MongooseOperationDraftItemDocument): OperationDraftItem {
+  public toDomain(document: MongooseOperationDraftItemDocument): OperationDraftItem {
     return createOperationDraftItem({
       id: document._id.toHexString(),
       action: document.action,
@@ -32,7 +32,7 @@ export class MongooseOperationDraftItemMapper {
     });
   }
 
-  toPersistence(item: OperationDraftItem): MongooseOperationDraftItemPersistence {
+  public toPersistence(item: OperationDraftItem): MongooseOperationDraftItemPersistence {
     return {
       _id: new Types.ObjectId(item.id),
       action: item.action,

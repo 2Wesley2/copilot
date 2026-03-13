@@ -22,7 +22,7 @@ export interface MongooseProductPersistence {
 export type MongooseProductDocument = HydratedDocument<MongooseProductPersistence>;
 
 export class MongooseProductMapper {
-  toDomain(document: MongooseProductDocument): Product {
+  public toDomain(document: MongooseProductDocument): Product {
     return createProduct({
       id: document._id.toHexString(),
       ...(isNullish(document.deletedAt) ? {} : { deletedAt: document.deletedAt }),
@@ -42,7 +42,7 @@ export class MongooseProductMapper {
     });
   }
 
-  toPersistence(product: Product): MongooseProductPersistence {
+  public toPersistence(product: Product): MongooseProductPersistence {
     return {
       _id: new Types.ObjectId(product.id),
       ...(isNullish(product.deletedAt) ? {} : { deletedAt: product.deletedAt }),

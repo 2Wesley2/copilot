@@ -4,10 +4,10 @@ import { type ActorService } from '../actor.service.js';
 
 @Controller('actors')
 export class ActorController {
-  constructor(private readonly service: ActorService) {}
+  public constructor(private readonly service: ActorService) {}
 
   @Get('health')
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return this.service.health();
   }
 }

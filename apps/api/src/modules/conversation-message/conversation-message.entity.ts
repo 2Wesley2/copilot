@@ -1,5 +1,3 @@
-import { isNullish } from '@copilot/shared';
-
 export type ConversationMessageRole = 'SYSTEM' | 'USER' | 'ASSISTANT';
 
 export interface ConversationMessageProps {
@@ -13,46 +11,34 @@ export interface ConversationMessageProps {
 }
 
 export class ConversationMessage {
-  constructor(private readonly props: ConversationMessageProps) {}
+  public constructor(private readonly props: ConversationMessageProps) {}
 
-  get id(): string {
+  public get id(): string {
     return this.props.id;
   }
 
-  get actorId(): string | undefined {
+  public get actorId(): string | undefined {
     return this.props.actorId;
   }
 
-  get content(): string {
+  public get content(): string {
     return this.props.content;
   }
 
-  get role(): ConversationMessageRole {
+  public get role(): ConversationMessageRole {
     return this.props.role;
   }
 
-  get sessionId(): string {
+  public get sessionId(): string {
     return this.props.sessionId;
   }
 
-  get streamed(): boolean | undefined {
+  public get streamed(): boolean | undefined {
     return this.props.streamed;
   }
 
-  get createdAt(): Date {
+  public get createdAt(): Date {
     return this.props.createdAt;
-  }
-
-  toPrimitives(): ConversationMessageProps {
-    return {
-      id: this.props.id,
-      ...(isNullish(this.props.actorId) ? {} : { actorId: this.props.actorId }),
-      content: this.props.content,
-      role: this.props.role,
-      sessionId: this.props.sessionId,
-      ...(isNullish(this.props.streamed) ? {} : { streamed: this.props.streamed }),
-      createdAt: this.props.createdAt,
-    };
   }
 }
 

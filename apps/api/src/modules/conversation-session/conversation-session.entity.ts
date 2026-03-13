@@ -1,5 +1,3 @@
-import { isNullish } from '@copilot/shared';
-
 export interface ConversationSessionProps {
   readonly id: string;
   readonly actorId: string;
@@ -9,36 +7,26 @@ export interface ConversationSessionProps {
 }
 
 export class ConversationSession {
-  constructor(private readonly props: ConversationSessionProps) {}
+  public constructor(private readonly props: ConversationSessionProps) {}
 
-  get id(): string {
+  public get id(): string {
     return this.props.id;
   }
 
-  get actorId(): string {
+  public get actorId(): string {
     return this.props.actorId;
   }
 
-  get metadata(): unknown {
+  public get metadata(): unknown {
     return this.props.metadata;
   }
 
-  get createdAt(): Date {
+  public get createdAt(): Date {
     return this.props.createdAt;
   }
 
-  get updatedAt(): Date {
+  public get updatedAt(): Date {
     return this.props.updatedAt;
-  }
-
-  toPrimitives(): ConversationSessionProps {
-    return {
-      id: this.props.id,
-      actorId: this.props.actorId,
-      ...(isNullish(this.props.metadata) ? {} : { metadata: this.props.metadata }),
-      createdAt: this.props.createdAt,
-      updatedAt: this.props.updatedAt,
-    };
   }
 }
 

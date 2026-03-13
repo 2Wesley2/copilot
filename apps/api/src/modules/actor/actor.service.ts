@@ -11,15 +11,15 @@ export class ActorService {
     private readonly repository: ActorRepository,
   ) {}
 
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return { ok: true };
   }
 
-  findById(actorId: string): AsyncResult<Actor | null, Error> {
+  public findById(actorId: string): AsyncResult<Actor | null, Error> {
     return this.repository.findById(actorId);
   }
 
-  findByExternalId(externalId: string): AsyncResult<Actor | null, Error> {
+  public findByExternalId(externalId: string): AsyncResult<Actor | null, Error> {
     return this.repository.findByExternalId(externalId);
   }
 }

@@ -20,7 +20,7 @@ export type MongooseOperationExecutionDocument =
   HydratedDocument<MongooseOperationExecutionPersistence>;
 
 export class MongooseOperationExecutionMapper {
-  toDomain(document: MongooseOperationExecutionDocument): OperationExecution {
+  public toDomain(document: MongooseOperationExecutionDocument): OperationExecution {
     return createOperationExecution({
       id: document._id.toHexString(),
       draftId: document.draftId.toHexString(),
@@ -32,7 +32,7 @@ export class MongooseOperationExecutionMapper {
     });
   }
 
-  toPersistence(execution: OperationExecution): MongooseOperationExecutionPersistence {
+  public toPersistence(execution: OperationExecution): MongooseOperationExecutionPersistence {
     return {
       _id: new Types.ObjectId(execution.id),
       draftId: new Types.ObjectId(execution.draftId),

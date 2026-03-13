@@ -14,16 +14,17 @@ import {
 
 @Injectable()
 export class MongooseDraftDecisionRepositoryAdapter implements DraftDecisionRepository {
-  constructor(
+  public constructor(
     @InjectModel(MONGO_MODELS.names.draftDecision)
     private readonly draftDecisionModel: Model<MongooseDraftDecisionPersistence>,
     private readonly draftDecisionMapper: MongooseDraftDecisionMapper,
   ) {}
 
-  findById(decisionId: string): AsyncResult<DraftDecision | null, Error> {
+  public findById(decisionId: string): AsyncResult<DraftDecision | null, Error> {
     return errorHandler.fromPromise(async () => {
-      const document: MongooseDraftDecisionDocument | null =
-        await this.draftDecisionModel.findById(decisionId).exec();
+      const document: MongooseDraftDecisionDocument | null = await this.draftDecisionModel
+        .findById(decisionId)
+        .exec();
 
       if (document === null) {
         return null;
@@ -33,7 +34,7 @@ export class MongooseDraftDecisionRepositoryAdapter implements DraftDecisionRepo
     });
   }
 
-  save(decision: DraftDecision): AsyncResult<void, Error> {
+  public save(decision: DraftDecision): AsyncResult<void, Error> {
     return errorHandler.fromPromise(async () => {
       const persistence = this.draftDecisionMapper.toPersistence(decision);
 

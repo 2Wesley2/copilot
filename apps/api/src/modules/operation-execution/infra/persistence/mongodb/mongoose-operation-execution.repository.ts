@@ -13,19 +13,18 @@ import {
 } from './mongoose-operation-execution.mapper.js';
 
 @Injectable()
-export class MongooseOperationExecutionRepositoryAdapter
-  implements OperationExecutionRepository
-{
-  constructor(
+export class MongooseOperationExecutionRepositoryAdapter implements OperationExecutionRepository {
+  public constructor(
     @InjectModel(MONGO_MODELS.names.operationExecution)
     private readonly operationExecutionModel: Model<MongooseOperationExecutionPersistence>,
     private readonly operationExecutionMapper: MongooseOperationExecutionMapper,
   ) {}
 
-  findById(executionId: string): AsyncResult<OperationExecution | null, Error> {
+  public findById(executionId: string): AsyncResult<OperationExecution | null, Error> {
     return errorHandler.fromPromise(async () => {
-      const document: MongooseOperationExecutionDocument | null =
-        await this.operationExecutionModel.findById(executionId).exec();
+      const document: MongooseOperationExecutionDocument | null = await this.operationExecutionModel
+        .findById(executionId)
+        .exec();
 
       if (document === null) {
         return null;
@@ -35,7 +34,7 @@ export class MongooseOperationExecutionRepositoryAdapter
     });
   }
 
-  save(execution: OperationExecution): AsyncResult<void, Error> {
+  public save(execution: OperationExecution): AsyncResult<void, Error> {
     return errorHandler.fromPromise(async () => {
       const persistence = this.operationExecutionMapper.toPersistence(execution);
 

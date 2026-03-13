@@ -15,7 +15,7 @@ export interface MongooseDraftDecisionPersistence {
 export type MongooseDraftDecisionDocument = HydratedDocument<MongooseDraftDecisionPersistence>;
 
 export class MongooseDraftDecisionMapper {
-  toDomain(document: MongooseDraftDecisionDocument): DraftDecision {
+  public toDomain(document: MongooseDraftDecisionDocument): DraftDecision {
     return createDraftDecision({
       id: document._id.toHexString(),
       actorId: document.actorId.toHexString(),
@@ -26,7 +26,7 @@ export class MongooseDraftDecisionMapper {
     });
   }
 
-  toPersistence(decision: DraftDecision): MongooseDraftDecisionPersistence {
+  public toPersistence(decision: DraftDecision): MongooseDraftDecisionPersistence {
     return {
       _id: new Types.ObjectId(decision.id),
       actorId: new Types.ObjectId(decision.actorId),

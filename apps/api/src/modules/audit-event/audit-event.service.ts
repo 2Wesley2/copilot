@@ -5,8 +5,12 @@ import { AUDIT_EVENT_REPOSITORY } from './audit-event.repository.js';
 
 @Injectable()
 export class AuditEventService {
-  constructor(
+  public constructor(
     @Inject(AUDIT_EVENT_REPOSITORY)
     private readonly repo: AuditEventRepository,
   ) {}
+
+  public health(): { ok: true } {
+    return { ok: true };
+  }
 }

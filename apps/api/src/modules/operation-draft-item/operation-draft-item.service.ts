@@ -9,16 +9,16 @@ import {
 
 @Injectable()
 export class OperationDraftItemService {
-  constructor(
+  public constructor(
     @Inject(OPERATION_DRAFT_ITEM_REPOSITORY)
     private readonly repository: OperationDraftItemRepository,
   ) {}
 
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return { ok: true };
   }
 
-  findById(itemId: string): AsyncResult<OperationDraftItem | null, Error> {
+  public findById(itemId: string): AsyncResult<OperationDraftItem | null, Error> {
     return this.repository.findById(itemId);
   }
 

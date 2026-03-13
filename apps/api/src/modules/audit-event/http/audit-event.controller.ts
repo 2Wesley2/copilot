@@ -4,10 +4,10 @@ import type { AuditEventService } from '../audit-event.service.js';
 
 @Controller('audit-events')
 export class AuditEventController {
-  constructor(private readonly service: AuditEventService) {}
+  public constructor(private readonly service: AuditEventService) {}
 
   @Get()
-  health() {
-    return { ok: true };
+  public health(): { ok: true } {
+    return this.service.health();
   }
 }

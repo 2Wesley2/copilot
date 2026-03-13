@@ -6,20 +6,20 @@ import { PRODUCT_REPOSITORY, type ProductRepository } from './product.repository
 
 @Injectable()
 export class ProductService {
-  constructor(
+  public constructor(
     @Inject(PRODUCT_REPOSITORY)
     private readonly repository: ProductRepository,
   ) {}
 
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return { ok: true };
   }
 
-  findById(productId: string): AsyncResult<Product | null, Error> {
+  public findById(productId: string): AsyncResult<Product | null, Error> {
     return this.repository.findById(productId);
   }
 
-  save(product: Product): AsyncResult<void, Error> {
+  public save(product: Product): AsyncResult<void, Error> {
     return this.repository.save(product);
   }
 }

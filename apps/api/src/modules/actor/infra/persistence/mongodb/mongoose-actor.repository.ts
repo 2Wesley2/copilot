@@ -14,7 +14,7 @@ import {
 
 @Injectable()
 export class MongooseActorRepositoryAdapter implements ActorRepository {
-  constructor(
+  public constructor(
     @InjectModel(MONGO_MODELS.names.actor)
     private readonly actorModel: Model<MongooseActorPersistence>,
     private readonly actorMapper: MongooseActorMapper,

@@ -4,10 +4,10 @@ import type { OperationDraftItemService } from '../operation-draft-item.service.
 
 @Controller('operation-draft-items')
 export class OperationDraftItemController {
-  constructor(private readonly service: OperationDraftItemService) {}
+  public constructor(private readonly service: OperationDraftItemService) {}
 
   @Get()
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return this.service.health();
   }
 }

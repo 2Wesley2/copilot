@@ -1,5 +1,3 @@
-import { isNullish } from '@copilot/shared';
-
 export interface DraftDecisionProps {
   readonly id: string;
   readonly actorId: string;
@@ -10,41 +8,30 @@ export interface DraftDecisionProps {
 }
 
 export class DraftDecision {
-  constructor(private readonly props: DraftDecisionProps) {}
+  public constructor(private readonly props: DraftDecisionProps) {}
 
-  get id(): string {
+  public get id(): string {
     return this.props.id;
   }
 
-  get actorId(): string {
+  public get actorId(): string {
     return this.props.actorId;
   }
 
-  get approved(): boolean {
+  public get approved(): boolean {
     return this.props.approved;
   }
 
-  get draftId(): string {
+  public get draftId(): string {
     return this.props.draftId;
   }
 
-  get reason(): unknown {
+  public get reason(): unknown {
     return this.props.reason;
   }
 
-  get createdAt(): Date {
+  public get createdAt(): Date {
     return this.props.createdAt;
-  }
-
-  toPrimitives(): DraftDecisionProps {
-    return {
-      id: this.props.id,
-      actorId: this.props.actorId,
-      approved: this.props.approved,
-      draftId: this.props.draftId,
-      ...(isNullish(this.props.reason) ? {} : { reason: this.props.reason }),
-      createdAt: this.props.createdAt,
-    };
   }
 }
 

@@ -16,7 +16,7 @@ export interface MongooseOperationDraftPersistence {
 export type MongooseOperationDraftDocument = HydratedDocument<MongooseOperationDraftPersistence>;
 
 export class MongooseOperationDraftMapper {
-  toDomain(document: MongooseOperationDraftDocument): OperationDraft {
+  public toDomain(document: MongooseOperationDraftDocument): OperationDraft {
     return createOperationDraft({
       id: document._id.toHexString(),
       actorId: document.actorId.toHexString(),
@@ -29,7 +29,7 @@ export class MongooseOperationDraftMapper {
     });
   }
 
-  toPersistence(draft: OperationDraft): MongooseOperationDraftPersistence {
+  public toPersistence(draft: OperationDraft): MongooseOperationDraftPersistence {
     return {
       _id: new Types.ObjectId(draft.id),
       actorId: new Types.ObjectId(draft.actorId),

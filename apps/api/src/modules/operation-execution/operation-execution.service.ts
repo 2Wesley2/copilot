@@ -9,20 +9,20 @@ import {
 
 @Injectable()
 export class OperationExecutionService {
-  constructor(
+  public constructor(
     @Inject(OPERATION_EXECUTION_REPOSITORY)
     private readonly repository: OperationExecutionRepository,
   ) {}
 
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return { ok: true };
   }
 
-  findById(executionId: string): AsyncResult<OperationExecution | null, Error> {
+  public findById(executionId: string): AsyncResult<OperationExecution | null, Error> {
     return this.repository.findById(executionId);
   }
 
-  save(execution: OperationExecution): AsyncResult<void, Error> {
+  public save(execution: OperationExecution): AsyncResult<void, Error> {
     return this.repository.save(execution);
   }
 }

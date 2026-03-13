@@ -14,13 +14,13 @@ import {
 
 @Injectable()
 export class MongooseProductRepositoryAdapter implements ProductRepository {
-  constructor(
+  public constructor(
     @InjectModel(MONGO_MODELS.names.product)
     private readonly productModel: Model<MongooseProductPersistence>,
     private readonly productMapper: MongooseProductMapper,
   ) {}
 
-  findById(productId: string): AsyncResult<Product | null, Error> {
+  public findById(productId: string): AsyncResult<Product | null, Error> {
     return errorHandler.fromPromise(async () => {
       const document: MongooseProductDocument | null = await this.productModel
         .findById(productId)
@@ -34,7 +34,7 @@ export class MongooseProductRepositoryAdapter implements ProductRepository {
     });
   }
 
-  save(product: Product): AsyncResult<void, Error> {
+  public save(product: Product): AsyncResult<void, Error> {
     return errorHandler.fromPromise(async () => {
       const persistence = this.productMapper.toPersistence(product);
 

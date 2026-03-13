@@ -1,5 +1,5 @@
 import { isNullish } from '@copilot/shared';
-import type { HydratedDocument, Types } from 'mongoose';
+import { type HydratedDocument, Types } from 'mongoose';
 
 import { type Actor, createActor } from '../../../actor.entity.js';
 
@@ -13,6 +13,7 @@ export interface MongooseActorPersistence {
 }
 
 export type MongooseActorDocument = HydratedDocument<MongooseActorPersistence>;
+
 export class MongooseActorMapper {
   public toDomain(document: MongooseActorDocument): Actor {
     return createActor({
@@ -23,5 +24,16 @@ export class MongooseActorMapper {
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
     });
+  }
+
+  public toPersistence(actor: Actor): MongooseActorPersistence {
+    return {
+      _id: new Types.ObjectId(actor.id),
+      ...(isNullish(actor.externalId) ? {} : { externalId: actor.externalId }),
+      ...(isNullish(actor.name) ? {} : { name: actor.name }),
+      ...(isNullish(actor.email) ? {} : { email: actor.email }),
+      createdAt: actor.createdAt,
+      updatedAt: actor.updatedAt,
+    };
   }
 }

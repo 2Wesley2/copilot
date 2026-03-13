@@ -4,10 +4,10 @@ import type { OperationExecutionService } from '../operation-execution.service.j
 
 @Controller('operation-executions')
 export class OperationExecutionController {
-  constructor(private readonly service: OperationExecutionService) {}
+  public constructor(private readonly service: OperationExecutionService) {}
 
   @Get()
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return this.service.health();
   }
 }

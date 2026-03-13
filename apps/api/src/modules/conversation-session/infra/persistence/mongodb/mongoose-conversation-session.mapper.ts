@@ -18,7 +18,7 @@ export type MongooseConversationSessionDocument =
   HydratedDocument<MongooseConversationSessionPersistence>;
 
 export class MongooseConversationSessionMapper {
-  toDomain(document: MongooseConversationSessionDocument): ConversationSession {
+  public toDomain(document: MongooseConversationSessionDocument): ConversationSession {
     return createConversationSession({
       id: document._id.toHexString(),
       actorId: document.actorId.toHexString(),
@@ -28,7 +28,7 @@ export class MongooseConversationSessionMapper {
     });
   }
 
-  toPersistence(session: ConversationSession): MongooseConversationSessionPersistence {
+  public toPersistence(session: ConversationSession): MongooseConversationSessionPersistence {
     return {
       _id: new Types.ObjectId(session.id),
       actorId: new Types.ObjectId(session.actorId),

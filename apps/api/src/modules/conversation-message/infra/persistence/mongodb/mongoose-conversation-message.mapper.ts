@@ -20,7 +20,7 @@ export type MongooseConversationMessageDocument =
   HydratedDocument<MongooseConversationMessagePersistence>;
 
 export class MongooseConversationMessageMapper {
-  toDomain(document: MongooseConversationMessageDocument): ConversationMessage {
+  public toDomain(document: MongooseConversationMessageDocument): ConversationMessage {
     return createConversationMessage({
       id: document._id.toHexString(),
       ...(isNullish(document.actorId) ? {} : { actorId: document.actorId.toHexString() }),
@@ -32,7 +32,7 @@ export class MongooseConversationMessageMapper {
     });
   }
 
-  toPersistence(message: ConversationMessage): MongooseConversationMessagePersistence {
+  public toPersistence(message: ConversationMessage): MongooseConversationMessagePersistence {
     return {
       _id: new Types.ObjectId(message.id),
       ...(isNullish(message.actorId) ? {} : { actorId: new Types.ObjectId(message.actorId) }),

@@ -13,19 +13,18 @@ import {
 } from './mongoose-operation-draft-item.mapper.js';
 
 @Injectable()
-export class MongooseOperationDraftItemRepositoryAdapter
-  implements OperationDraftItemRepository
-{
-  constructor(
+export class MongooseOperationDraftItemRepositoryAdapter implements OperationDraftItemRepository {
+  public constructor(
     @InjectModel(MONGO_MODELS.names.operationDraftItem)
     private readonly operationDraftItemModel: Model<MongooseOperationDraftItemPersistence>,
     private readonly operationDraftItemMapper: MongooseOperationDraftItemMapper,
   ) {}
 
-  findById(itemId: string): AsyncResult<OperationDraftItem | null, Error> {
+  public findById(itemId: string): AsyncResult<OperationDraftItem | null, Error> {
     return errorHandler.fromPromise(async () => {
-      const document: MongooseOperationDraftItemDocument | null =
-        await this.operationDraftItemModel.findById(itemId).exec();
+      const document: MongooseOperationDraftItemDocument | null = await this.operationDraftItemModel
+        .findById(itemId)
+        .exec();
 
       if (document === null) {
         return null;
@@ -35,7 +34,7 @@ export class MongooseOperationDraftItemRepositoryAdapter
     });
   }
 
-  save(item: OperationDraftItem): AsyncResult<void, Error> {
+  public save(item: OperationDraftItem): AsyncResult<void, Error> {
     return errorHandler.fromPromise(async () => {
       const persistence = this.operationDraftItemMapper.toPersistence(item);
 

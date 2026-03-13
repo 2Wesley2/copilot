@@ -1,5 +1,3 @@
-import { isNullish } from '@copilot/shared';
-
 export type OperationDraftItemAction = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE';
 
 export interface OperationDraftItemProps {
@@ -13,46 +11,34 @@ export interface OperationDraftItemProps {
 }
 
 export class OperationDraftItem {
-  constructor(private readonly props: OperationDraftItemProps) {}
+  public constructor(private readonly props: OperationDraftItemProps) {}
 
-  get id(): string {
+  public get id(): string {
     return this.props.id;
   }
 
-  get action(): OperationDraftItemAction {
+  public get action(): OperationDraftItemAction {
     return this.props.action;
   }
 
-  get draftId(): string {
+  public get draftId(): string {
     return this.props.draftId;
   }
 
-  get payload(): unknown {
+  public get payload(): unknown {
     return this.props.payload;
   }
 
-  get position(): number {
+  public get position(): number {
     return this.props.position;
   }
 
-  get productId(): string | undefined {
+  public get productId(): string | undefined {
     return this.props.productId;
   }
 
-  get createdAt(): Date {
+  public get createdAt(): Date {
     return this.props.createdAt;
-  }
-
-  toPrimitives(): OperationDraftItemProps {
-    return {
-      id: this.props.id,
-      action: this.props.action,
-      draftId: this.props.draftId,
-      payload: this.props.payload,
-      position: this.props.position,
-      ...(isNullish(this.props.productId) ? {} : { productId: this.props.productId }),
-      createdAt: this.props.createdAt,
-    };
   }
 }
 

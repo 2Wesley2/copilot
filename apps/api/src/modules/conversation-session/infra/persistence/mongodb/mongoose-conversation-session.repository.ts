@@ -13,16 +13,14 @@ import {
 } from './mongoose-conversation-session.mapper.js';
 
 @Injectable()
-export class MongooseConversationSessionRepositoryAdapter
-  implements ConversationSessionRepository
-{
-  constructor(
+export class MongooseConversationSessionRepositoryAdapter implements ConversationSessionRepository {
+  public constructor(
     @InjectModel(MONGO_MODELS.names.conversationSession)
     private readonly conversationSessionModel: Model<MongooseConversationSessionPersistence>,
     private readonly conversationSessionMapper: MongooseConversationSessionMapper,
   ) {}
 
-  findById(sessionId: string): AsyncResult<ConversationSession | null, Error> {
+  public findById(sessionId: string): AsyncResult<ConversationSession | null, Error> {
     return errorHandler.fromPromise(async () => {
       const document: MongooseConversationSessionDocument | null =
         await this.conversationSessionModel.findById(sessionId).exec();
@@ -35,7 +33,7 @@ export class MongooseConversationSessionRepositoryAdapter
     });
   }
 
-  save(session: ConversationSession): AsyncResult<void, Error> {
+  public save(session: ConversationSession): AsyncResult<void, Error> {
     return errorHandler.fromPromise(async () => {
       const persistence = this.conversationSessionMapper.toPersistence(session);
 

@@ -4,10 +4,10 @@ import type { ConversationSessionService } from '../conversation-session.service
 
 @Controller('conversation-sessions')
 export class ConversationSessionController {
-  constructor(private readonly service: ConversationSessionService) {}
+  public constructor(private readonly service: ConversationSessionService) {}
 
   @Get()
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return this.service.health();
   }
 }

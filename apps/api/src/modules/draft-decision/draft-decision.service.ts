@@ -9,20 +9,20 @@ import {
 
 @Injectable()
 export class DraftDecisionService {
-  constructor(
+  public constructor(
     @Inject(DRAFT_DECISION_REPOSITORY)
     private readonly repository: DraftDecisionRepository,
   ) {}
 
-  health(): { ok: true } {
+  public health(): { ok: true } {
     return { ok: true };
   }
 
-  findById(decisionId: string): AsyncResult<DraftDecision | null, Error> {
+  public findById(decisionId: string): AsyncResult<DraftDecision | null, Error> {
     return this.repository.findById(decisionId);
   }
 
-  save(decision: DraftDecision): AsyncResult<void, Error> {
+  public save(decision: DraftDecision): AsyncResult<void, Error> {
     return this.repository.save(decision);
   }
 }

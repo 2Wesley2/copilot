@@ -3,9 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import {
-  MONGO_MODELS,
-} from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_MODELS } from '../../../../../mongodb/mongoose.schemas.js';
 import type { ConversationMessage } from '../../../conversation-message.entity.js';
 import type { ConversationMessageRepository } from '../../../conversation-message.repository.js';
 import {
@@ -15,16 +13,14 @@ import {
 } from './mongoose-conversation-message.mapper.js';
 
 @Injectable()
-export class MongooseConversationMessageRepositoryAdapter
-  implements ConversationMessageRepository
-{
-  constructor(
+export class MongooseConversationMessageRepositoryAdapter implements ConversationMessageRepository {
+  public constructor(
     @InjectModel(MONGO_MODELS.names.conversationMessage)
     private readonly conversationMessageModel: Model<MongooseConversationMessagePersistence>,
     private readonly conversationMessageMapper: MongooseConversationMessageMapper,
   ) {}
 
-  findById(messageId: string): AsyncResult<ConversationMessage | null, Error> {
+  public findById(messageId: string): AsyncResult<ConversationMessage | null, Error> {
     return errorHandler.fromPromise(async () => {
       const document: MongooseConversationMessageDocument | null =
         await this.conversationMessageModel.findById(messageId).exec();
@@ -37,7 +33,7 @@ export class MongooseConversationMessageRepositoryAdapter
     });
   }
 
-  save(message: ConversationMessage): AsyncResult<void, Error> {
+  public save(message: ConversationMessage): AsyncResult<void, Error> {
     return errorHandler.fromPromise(async () => {
       const persistence = this.conversationMessageMapper.toPersistence(message);
 
