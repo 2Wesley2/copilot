@@ -11,6 +11,7 @@ import {
   type MongooseProductMapper,
   type MongooseProductPersistence,
 } from './mongoose-product.mapper.js';
+import { isNullish } from '@copilot/shared';
 
 @Injectable()
 export class MongooseProductRepositoryAdapter implements ProductRepository {
@@ -26,7 +27,7 @@ export class MongooseProductRepositoryAdapter implements ProductRepository {
         .findById(productId)
         .exec();
 
-      if (document === null) {
+      if (isNullish(document)) {
         return null;
       }
 

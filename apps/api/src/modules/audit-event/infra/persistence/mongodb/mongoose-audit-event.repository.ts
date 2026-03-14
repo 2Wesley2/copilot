@@ -11,6 +11,7 @@ import {
   type MongooseAuditEventMapper,
   type MongooseAuditEventPersistence,
 } from './mongoose-audit-event.mapper.js';
+import { isNullish } from '@copilot/shared';
 
 @Injectable()
 export class MongooseAuditEventRepositoryAdapter implements AuditEventRepository {
@@ -26,7 +27,7 @@ export class MongooseAuditEventRepositoryAdapter implements AuditEventRepository
         .findById(auditEventId)
         .exec();
 
-      if (document === null) {
+      if (isNullish(document)) {
         return null;
       }
 

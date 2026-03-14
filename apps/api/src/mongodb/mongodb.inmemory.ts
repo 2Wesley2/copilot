@@ -1,4 +1,5 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { isNullish } from '@copilot/shared';
 
 import { type AsyncResult, errorHandler } from '../error/index.js';
 
@@ -34,7 +35,7 @@ class InMemoryMongoServerManager {
   }
 
   public stop(): AsyncResult<void, Error> {
-    if (this.memoryServerPromise === null) {
+    if (isNullish(this.memoryServerPromise)) {
       return errorHandler.okAsync(undefined);
     }
 
@@ -54,12 +55,10 @@ class InMemoryMongoServerManager {
   }
 }
 
-const inMemoryMongoServerManager = InMemoryMongoServerManager.getInstance();
-
 export function getMemoryServer(): AsyncResult<MongoMemoryServer, Error> {
-  return inMemoryMongoServerManager.getMemoryServer();
+  return InMemoryMongoServerManager.getInstance().getMemoryServer();
 }
 
 export function stopInMemoryMongoServer(): AsyncResult<void, Error> {
-  return inMemoryMongoServerManager.stop();
+  return InMemoryMongoServerManager.getInstance().stop();
 }

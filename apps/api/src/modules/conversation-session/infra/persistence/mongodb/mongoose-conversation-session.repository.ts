@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
+import { isNullish } from '@copilot/shared';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
 import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
@@ -25,7 +26,7 @@ export class MongooseConversationSessionRepositoryAdapter implements Conversatio
       const document: MongooseConversationSessionDocument | null =
         await this.conversationSessionModel.findById(sessionId).exec();
 
-      if (document === null) {
+      if (isNullish(document)) {
         return null;
       }
 

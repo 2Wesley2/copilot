@@ -1,5 +1,6 @@
 import { errorHandler, type Result } from '../error/index.js';
 import { createInvalidDbModeError, createMissingDbModeError } from './mongodb.errors.js';
+import { isNullish } from '@copilot/shared';
 
 export type DbMode = 'inmemory' | 'local' | 'atlas';
 export type RuntimePurpose = 'application' | 'seed';
@@ -44,7 +45,7 @@ class MongoEnvironmentVariables {
   private read(name: string): string | undefined {
     const value = this.env[name]?.trim();
 
-    if (value === undefined || value === '') {
+    if (isNullish(value) || value === '') {
       return undefined;
     }
 
@@ -54,7 +55,7 @@ class MongoEnvironmentVariables {
   private readLowercase(name: string): string | undefined {
     const value = this.read(name);
 
-    if (value === undefined) {
+    if (isNullish(value)) {
       return undefined;
     }
 
@@ -81,7 +82,7 @@ class MongoDbMode {
   public constructor(readonly value: DbMode) {}
 
   public static parse(rawMode: string | undefined): Result<MongoDbMode, Error> {
-    if (rawMode === undefined) {
+    if (isNullish(rawMode)) {
       return errorHandler.err(createMissingDbModeError());
     }
 

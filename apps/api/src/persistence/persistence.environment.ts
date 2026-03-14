@@ -1,6 +1,6 @@
 import { createError } from '../error/error.factory.js';
 import { errorHandler, type Result } from '../error/index.js';
-
+import { isNullish } from '@copilot/shared';
 export type PersistenceTechnology = 'mongodb' | 'postgresql' | 'mysql' | 'sqlite';
 export type PersistenceMappingStyle = 'odm' | 'orm';
 export type PersistenceRuntimeEnv = Record<string, string | undefined>;
@@ -51,7 +51,7 @@ class EnvironmentValueReader {
   public readLowercase(key: string): string | undefined {
     const value = this.params.env[key]?.trim().toLowerCase();
 
-    if (value === undefined || value === '') {
+    if (isNullish(value) || value === '') {
       return undefined;
     }
 
@@ -124,7 +124,7 @@ class EnvironmentOptionResolver<TValue extends string> {
   public resolve(): Result<TValue, Error> {
     const rawValue = this.params.reader.readLowercase(this.params.key);
 
-    if (rawValue === undefined) {
+    if (isNullish(rawValue)) {
       return errorHandler.ok(this.params.defaultValue);
     }
 
