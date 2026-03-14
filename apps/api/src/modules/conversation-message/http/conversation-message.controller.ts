@@ -6,7 +6,7 @@ import type { ConversationMessageService } from '../conversation-message.service
 export class ConversationMessageController {
   public constructor(private readonly service: ConversationMessageService) {}
 
-  @Get()
+  @Get('health')
   public health(): { ok: true } {
     return this.service.health();
   }

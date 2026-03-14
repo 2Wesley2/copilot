@@ -6,7 +6,7 @@ import type { AuditEventService } from '../audit-event.service.js';
 export class AuditEventController {
   public constructor(private readonly service: AuditEventService) {}
 
-  @Get()
+  @Get('health')
   public health(): { ok: true } {
     return this.service.health();
   }

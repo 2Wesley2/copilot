@@ -6,7 +6,7 @@ import type { OperationDraftService } from '../operation-draft.service.js';
 export class OperationDraftController {
   constructor(private readonly service: OperationDraftService) {}
 
-  @Get()
+  @Get('health')
   health(): { ok: true } {
     return this.service.health();
   }

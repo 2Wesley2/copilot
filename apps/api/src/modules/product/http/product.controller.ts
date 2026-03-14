@@ -6,7 +6,7 @@ import type { ProductService } from '../product.service.js';
 export class ProductController {
   constructor(private readonly service: ProductService) {}
 
-  @Get()
+  @Get('health')
   public health(): { ok: true } {
     return this.service.health();
   }

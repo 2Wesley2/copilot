@@ -6,7 +6,7 @@ import type { DraftDecisionService } from '../draft-decision.service.js';
 export class DraftDecisionController {
   public constructor(private readonly service: DraftDecisionService) {}
 
-  @Get()
+  @Get('health')
   public health(): { ok: true } {
     return this.service.health();
   }

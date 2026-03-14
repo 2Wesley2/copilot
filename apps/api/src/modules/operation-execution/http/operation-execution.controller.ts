@@ -6,7 +6,7 @@ import type { OperationExecutionService } from '../operation-execution.service.j
 export class OperationExecutionController {
   public constructor(private readonly service: OperationExecutionService) {}
 
-  @Get()
+  @Get('health')
   public health(): { ok: true } {
     return this.service.health();
   }
