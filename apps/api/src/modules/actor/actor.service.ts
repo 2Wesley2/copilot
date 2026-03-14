@@ -6,7 +6,7 @@ import { ACTOR_REPOSITORY, type ActorRepository } from './actor.repository.js';
 
 @Injectable()
 export class ActorService {
-  constructor(
+  public constructor(
     @Inject(ACTOR_REPOSITORY)
     private readonly repository: ActorRepository,
   ) {}
