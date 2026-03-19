@@ -1,5 +1,5 @@
+import type { AsyncResult, Result } from './error.handler.js';
 import { errorHandler } from './error.instance.js';
-import type { AsyncResult, Result } from './result.contract.js';
 
 export function ensureError(value: unknown): Error {
   return errorHandler.normalize(value);

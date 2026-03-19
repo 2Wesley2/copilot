@@ -1,5 +1,4 @@
 import { createError } from './error.factory.js';
-import { createDefaultErrorHandler } from './error.handler.js';
-import type { ErrorHandlerContract } from './result.contract.js';
+import { createDefaultErrorHandler, type ErrorHandlerContract } from './error.handler.js';
 
 export const errorHandler: ErrorHandlerContract = createDefaultErrorHandler(createError);
