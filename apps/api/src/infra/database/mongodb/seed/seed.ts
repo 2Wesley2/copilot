@@ -10,74 +10,72 @@ import {
   type Result,
 } from '../../../../error/index.js';
 import { stopInMemoryMongoServer } from '../inmemory/mongodb.inmemory.js';
+import { MONGO_MODEL_NAMES } from '../mongoose/mongo-model.constants.js';
+
 import {
-  type Actor,
-  type ActorDocument,
-  type AuditEvent,
-  type AuditEventDocument,
-  type ConversationMessage,
-  type ConversationMessageDocument,
-  type ConversationSession,
-  type ConversationSessionDocument,
-  type DraftDecision,
-  type DraftDecisionDocument,
-  MONGO_SCHEMAS,
-  mongoSchemas,
-  type OperationDraft,
-  type OperationDraftDocument,
-  type OperationDraftItem,
-  type OperationDraftItemDocument,
-  type OperationExecution,
-  type OperationExecutionDocument,
-  type Product,
-  type ProductDocument,
-} from '../mongoose/mongoose.schemas.js';
+  ActorSchema,
+  type ActorMongoDocument as ActorDocument,
+  type ActorMongoPersistence as Actor,
+} from '../../../../modules/actor/infrastructure/persistence/mongodb/actor.schema.js';
+import {
+  AuditEventSchema,
+  type AuditEventMongoDocument as AuditEventDocument,
+  type AuditEventMongoPersistence as AuditEvent,
+} from '../../../../modules/audit-event/infrastructure/persistence/mongodb/audit-event.schema.js';
+import {
+  ConversationMessageSchema,
+  type ConversationMessageMongoDocument as ConversationMessageDocument,
+  type ConversationMessageMongoPersistence as ConversationMessage,
+} from '../../../../modules/conversation-message/infrastructure/persistence/mongodb/conversation-message.schema.js';
+import {
+  ConversationSessionSchema,
+  type ConversationSessionMongoDocument as ConversationSessionDocument,
+  type ConversationSessionMongoPersistence as ConversationSession,
+} from '../../../../modules/conversation-session/infrastructure/persistence/mongodb/conversation-session.schema.js';
+import {
+  DraftDecisionSchema,
+  type DraftDecisionMongoDocument as DraftDecisionDocument,
+  type DraftDecisionMongoPersistence as DraftDecision,
+} from '../../../../modules/draft-decision/infrastructure/persistence/mongodb/draft-decision.schema.js';
+import {
+  OperationDraftSchema,
+  type OperationDraftMongoDocument as OperationDraftDocument,
+  type OperationDraftMongoPersistence as OperationDraft,
+} from '../../../../modules/operation-draft/infrastructure/persistence/mongodb/operation-draft.schema.js';
+import {
+  OperationDraftItemSchema,
+  type OperationDraftItemMongoDocument as OperationDraftItemDocument,
+  type OperationDraftItemMongoPersistence as OperationDraftItem,
+} from '../../../../modules/operation-draft-item/infrastructure/persistence/mongodb/operation-draft-item.schema.js';
+import {
+  OperationExecutionSchema,
+  type OperationExecutionMongoDocument as OperationExecutionDocument,
+  type OperationExecutionMongoPersistence as OperationExecution,
+} from '../../../../modules/operation-execution/infrastructure/persistence/mongodb/operation-execution.schema.js';
+import {
+  ProductSchema,
+  type ProductMongoDocument as ProductDocument,
+  type ProductMongoPersistence as Product,
+} from '../../../../modules/product/infrastructure/persistence/mongodb/product.schema.js';
 import { resolveMongoRuntime } from '../runtime/mongodb.runtime.js';
 
-const actorModel: Model<Actor> = mongoose.model<Actor>(
-  MONGO_SCHEMAS.names.actor,
-  mongoSchemas.actor,
-);
+const actorModel: Model<Actor> = mongoose.model<Actor>(MONGO_MODEL_NAMES.actor, ActorSchema);
 
-const conversationSessionModel: Model<ConversationSession> = mongoose.model<ConversationSession>(
-  MONGO_SCHEMAS.names.conversationSession,
-  mongoSchemas.conversationSession,
-);
+const conversationSessionModel: Model<ConversationSession> = mongoose.model<ConversationSession>(MONGO_MODEL_NAMES.conversationSession, ConversationSessionSchema);
 
-const conversationMessageModel: Model<ConversationMessage> = mongoose.model<ConversationMessage>(
-  MONGO_SCHEMAS.names.conversationMessage,
-  mongoSchemas.conversationMessage,
-);
+const conversationMessageModel: Model<ConversationMessage> = mongoose.model<ConversationMessage>(MONGO_MODEL_NAMES.conversationMessage, ConversationMessageSchema);
 
-const operationDraftModel: Model<OperationDraft> = mongoose.model<OperationDraft>(
-  MONGO_SCHEMAS.names.operationDraft,
-  mongoSchemas.operationDraft,
-);
+const operationDraftModel: Model<OperationDraft> = mongoose.model<OperationDraft>(MONGO_MODEL_NAMES.operationDraft, OperationDraftSchema);
 
-const operationDraftItemModel: Model<OperationDraftItem> = mongoose.model<OperationDraftItem>(
-  MONGO_SCHEMAS.names.operationDraftItem,
-  mongoSchemas.operationDraftItem,
-);
+const operationDraftItemModel: Model<OperationDraftItem> = mongoose.model<OperationDraftItem>(MONGO_MODEL_NAMES.operationDraftItem, OperationDraftItemSchema);
 
-const draftDecisionModel: Model<DraftDecision> = mongoose.model<DraftDecision>(
-  MONGO_SCHEMAS.names.draftDecision,
-  mongoSchemas.draftDecision,
-);
+const draftDecisionModel: Model<DraftDecision> = mongoose.model<DraftDecision>(MONGO_MODEL_NAMES.draftDecision, DraftDecisionSchema);
 
-const operationExecutionModel: Model<OperationExecution> = mongoose.model<OperationExecution>(
-  MONGO_SCHEMAS.names.operationExecution,
-  mongoSchemas.operationExecution,
-);
+const operationExecutionModel: Model<OperationExecution> = mongoose.model<OperationExecution>(MONGO_MODEL_NAMES.operationExecution, OperationExecutionSchema);
 
-const auditEventModel: Model<AuditEvent> = mongoose.model<AuditEvent>(
-  MONGO_SCHEMAS.names.auditEvent,
-  mongoSchemas.auditEvent,
-);
+const auditEventModel: Model<AuditEvent> = mongoose.model<AuditEvent>(MONGO_MODEL_NAMES.auditEvent, AuditEventSchema);
 
-const productModel: Model<Product> = mongoose.model<Product>(
-  MONGO_SCHEMAS.names.product,
-  mongoSchemas.product,
-);
+const productModel: Model<Product> = mongoose.model<Product>(MONGO_MODEL_NAMES.product, ProductSchema);
 
 const SEED_KEYS = Object.freeze({
   actorExternalId: 'local-dev-actor-1',
@@ -379,12 +377,16 @@ function seedDraftDecision(
     () =>
       draftDecisionModel
         .findOneAndUpdate(
-          { draftId },
+          { draftId, isFinal: true },
           {
             actorId,
-            approved: true,
+            decisionPayload: {
+              approved: true,
+              reason: 'Aprovado automaticamente para ambiente local.',
+            },
+            decisionType: 'APPROVED',
             draftId,
-            reason: 'Aprovado automaticamente para ambiente local.',
+            isFinal: true,
           },
           {
             new: true,
@@ -399,17 +401,22 @@ function seedDraftDecision(
 
 function seedOperationExecution(
   draftId: Types.ObjectId,
+  decisionId: Types.ObjectId,
   productId: Types.ObjectId,
 ): AsyncResult<OperationExecutionDocument, Error> {
   return upsertDocument(
     () =>
       operationExecutionModel
         .findOneAndUpdate(
-          { draftId },
+          { draftId, isFinal: true },
           {
+            attempt: 1,
+            decisionId,
             draftId,
+            executedAt: SEED_DATES.executionFinishedAt,
             finishedAt: SEED_DATES.executionFinishedAt,
-            result: {
+            isFinal: true,
+            resultSnapshot: {
               ok: true,
               source: 'seed',
               productId: productId.toHexString(),
@@ -477,7 +484,7 @@ function seedLocalDevelopmentData(): AsyncResult<SeedSummary, Error> {
           seedOperationDraft(actor._id, session._id, product._id).andThen((draft) =>
             seedOperationDraftItem(draft._id, product._id).andThen((draftItem) =>
               seedDraftDecision(actor._id, draft._id).andThen((draftDecision) =>
-                seedOperationExecution(draft._id, product._id).andThen((operationExecution) =>
+                seedOperationExecution(draft._id, draftDecision._id, product._id).andThen((operationExecution) =>
                   seedAuditEvent(
                     actor._id,
                     draft._id,
