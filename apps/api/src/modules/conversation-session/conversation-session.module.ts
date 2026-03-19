@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 
-import { ConversationSessionService } from './conversation-session.service.js';
-import { ConversationSessionController } from './http/conversation-session.controller.js';
-import { ConversationSessionMongoPersistenceModule } from './infra/persistence/mongodb/conversation-session-mongodb-persistence.module.js';
+import { ConversationSessionService } from './application/conversation-session.service.js';
+import { ConversationSessionController } from './presentation/http/conversation-session.controller.js';
+import { ConversationSessionMongoPersistenceModule } from './infrastructure/persistence/mongodb/conversation-session-mongodb-persistence.module.js';
 
 @Module({
   imports: [ConversationSessionMongoPersistenceModule],

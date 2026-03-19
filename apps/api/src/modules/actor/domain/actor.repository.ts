@@ -1,4 +1,4 @@
-import type { AsyncResult } from '../../error/index.js';
+import type { AsyncResult } from '../../../error/index.js';
 import type { Actor } from './actor.entity.js';
 
 export const ACTOR_REPOSITORY = Symbol('ACTOR_REPOSITORY');

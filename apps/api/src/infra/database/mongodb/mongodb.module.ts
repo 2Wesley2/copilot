@@ -1,55 +1,34 @@
-import { isNullish } from '@copilot/shared';
-import type { DynamicModule, OnApplicationShutdown } from '@nestjs/common';
-import { Global, Injectable, Logger, Module } from '@nestjs/common';
-import type { ConfigModuleOptions } from '@nestjs/config';
-import { ConfigModule } from '@nestjs/config';
+import { Global, Injectable, Logger, Module, type OnApplicationShutdown } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule, type MongooseModuleOptions } from '@nestjs/mongoose';
 
-import { createError } from '../../../../error/error.factory.js';
-import {
-  type AsyncResult,
-  errorHandler,
-  type Result,
-  toResultAsync,
-} from '../../../../error/index.js';
-import {
-  PERSISTENCE,
-  type PersistenceProfile,
-} from '../../../persistence/persistence.environment.js';
-import type { PersistenceModuleStrategy } from '../../../persistence/persistence.module.js';
-import { MONGO_READINESS_STORE } from '../connection/mongodb-readiness.constants.js';
-import { stopInMemoryMongoServer } from '../inmemory/mongodb.inmemory.js';
-import { mongoSchemaDefinitions } from '../mongoose/mongoose.schemas.js';
-import {
-  createMongoConfigModuleOptionsResult,
-  createMongoMongooseOptionsResult,
-  createMongoNamespaceConfigResult,
-  type MongoConfig,
-  mongoReadinessStore,
-} from './mongodb.config.js';
+import { MONGO_READINESS_STORE } from './connection/mongodb-readiness.constants.js';
+import { createMongoConnectionInfrastructure } from './connection/mongodb-connection.policy.js';
+import type { MongoEnv } from './env/mongodb-env.schema.js';
+import { stopInMemoryMongoServer } from './inmemory/mongodb.inmemory.js';
+import { resolveMongoRuntime } from './runtime/mongodb.runtime.js';
 
-interface ResolvedMongooseRootOptions {
-  readonly uri: string;
-  readonly connectionOptions: Omit<MongooseModuleOptions, 'uri'>;
-}
+const mongoConnectionInfrastructure = createMongoConnectionInfrastructure();
 
-function resolveMongooseRootOptions(
-  mongooseOptions: MongooseModuleOptions,
-): Result<ResolvedMongooseRootOptions, Error> {
-  const uri = mongooseOptions.uri;
+async function createMongoMongooseOptions(
+  configService: ConfigService,
+): Promise<MongooseModuleOptions> {
+  const runtime = await resolveMongoRuntime({
+    DATABASE_URL: configService.get<string>('DATABASE_URL'),
+    DB_MODE: configService.get<MongoEnv['DB_MODE']>('DB_MODE'),
+    MONGODB_URL: configService.get<string>('MONGODB_URL'),
+    NODE_ENV: configService.get<MongoEnv['NODE_ENV']>('NODE_ENV'),
+  }).match(
+    (value) => Promise.resolve(value),
+    (error) => Promise.reject(error),
+  );
 
-  if (isNullish(uri)) {
-    return errorHandler.err(
-      createError('MongoDB connection uri was not resolved for MongooseModule.forRoot.'),
-    );
-  }
-
-  const { uri: _ignoredUri, ...connectionOptions } = mongooseOptions;
-
-  return errorHandler.ok({
-    uri,
-    connectionOptions,
-  });
+  return {
+    uri: runtime.uri,
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5_000,
+    onConnectionCreate: (connection) => mongoConnectionInfrastructure.policy.apply(connection),
+  };
 }
 
 @Injectable()
@@ -67,56 +46,22 @@ class MongoLifecycleService implements OnApplicationShutdown {
 }
 
 @Global()
-@Module({})
-export class MongoPersistenceModule {
-  public static registerResult(): AsyncResult<DynamicModule, Error> {
-    const configModuleOptionsResult: Result<ConfigModuleOptions, Error> =
-      createMongoConfigModuleOptionsResult();
-
-    return toResultAsync(configModuleOptionsResult).andThen(
-      (configModuleOptions: ConfigModuleOptions) => {
-        const namespaceConfigResult: Result<MongoConfig, Error> =
-          createMongoNamespaceConfigResult();
-
-        return toResultAsync(namespaceConfigResult).andThen((config: MongoConfig) =>
-          createMongoMongooseOptionsResult(config).andThen(
-            (mongooseOptions: MongooseModuleOptions) =>
-              toResultAsync(resolveMongooseRootOptions(mongooseOptions)).map(
-                ({ uri, connectionOptions }: ResolvedMongooseRootOptions) => ({
-                  module: MongoPersistenceModule,
-                  imports: [
-                    ConfigModule.forRoot(configModuleOptions),
-                    MongooseModule.forRoot(uri, connectionOptions),
-                    MongooseModule.forFeature(mongoSchemaDefinitions),
-                  ],
-                  providers: [
-                    MongoLifecycleService,
-                    {
-                      provide: MONGO_READINESS_STORE,
-                      useValue: mongoReadinessStore,
-                    },
-                  ],
-                  exports: [MongooseModule, MONGO_READINESS_STORE],
-                }),
-              ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-export function createMongoMongoosePersistenceStrategy(): PersistenceModuleStrategy {
-  return {
-    supports(profile: PersistenceProfile): boolean {
-      return (
-        profile.technology === PERSISTENCE.technologies.mongodb &&
-        profile.mappingStyle === PERSISTENCE.mappingStyles.odm
-      );
+@Module({
+  imports: [
+    ConfigModule,
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: createMongoMongooseOptions,
+    }),
+  ],
+  providers: [
+    MongoLifecycleService,
+    {
+      provide: MONGO_READINESS_STORE,
+      useValue: mongoConnectionInfrastructure.readinessStore,
     },
-
-    createModuleResult(): AsyncResult<DynamicModule, Error> {
-      return MongoPersistenceModule.registerResult();
-    },
-  };
-}
+  ],
+  exports: [MONGO_READINESS_STORE],
+})
+export class MongoModule {}
