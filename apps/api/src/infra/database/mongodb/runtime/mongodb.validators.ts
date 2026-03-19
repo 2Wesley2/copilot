@@ -1,5 +1,5 @@
-import { type AsyncResult, errorHandler, type Result } from '../error/index.js';
-import type { DbMode } from './mongodb.environment.js';
+import { type AsyncResult, errorHandler, type Result } from '../../../../error/index.js';
+import type { DbMode } from '../env/mongodb.environment.js';
 import {
   createDisallowedNodeEnvError,
   createInvalidAtlasUriError,

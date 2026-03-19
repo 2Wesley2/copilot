@@ -4,7 +4,12 @@
   "packageManager": "pnpm@10.31.0",
   "scripts": {
     "build": "turbo run build",
+    "build:shared": "pnpm --filter @copilot/shared build",
     "dev": "turbo run dev --parallel",
+    "dev:api": "pnpm --filter @copilot/shared build && pnpm -r --parallel --filter @copilot/shared --filter @copilot/api run dev",
+    "start:api": "pnpm --filter @copilot/shared build && pnpm --filter @copilot/api start",
+    "start:api:test": "pnpm --filter @copilot/shared build && pnpm --filter @copilot/api start:test",
+    "start:api:prod": "pnpm --filter @copilot/shared build && pnpm --filter @copilot/api start:prod",
     "typecheck": "turbo run typecheck",
     "lint": "pnpm exec eslint . --max-warnings=0",
     "lint:fix": "pnpm exec eslint . --fix",

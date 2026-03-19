@@ -1,7 +1,7 @@
 import { isNullish } from '@copilot/shared';
 import { type HydratedDocument, Types } from 'mongoose';
 
-import { type Actor, createActor } from '../../../actor.entity.js';
+import { type Actor, createActor } from '../../../domain/actor.entity.js';
 
 export interface MongooseActorPersistence {
   readonly _id: Types.ObjectId;

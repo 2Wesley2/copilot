@@ -20,12 +20,6 @@
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": false,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-
-    "baseUrl": ".",
-    "paths": {
-      "@copilot/shared": ["apps/packages/shared/src/index.ts"],
-      "@copilot/shared/*": ["apps/packages/shared/src/*"]
-    }
+    "resolveJsonModule": true
   }
 }

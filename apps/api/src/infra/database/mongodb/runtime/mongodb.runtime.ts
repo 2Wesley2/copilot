@@ -1,13 +1,18 @@
-import { type AsyncResult, errorHandler } from '../error/index.js';
+import {
+  type AsyncResult,
+  createError,
+  errorHandler,
+  type Result,
+} from '../../../../error/index.js';
 import {
   type DbMode,
   MONGO_ENVIRONMENT,
   resolveMongoEnvironment,
   type RuntimeEnv,
   type RuntimePurpose,
-} from './mongodb.environment.js';
+} from '../env/mongodb.environment.js';
+import { getMemoryServer } from '../inmemory/mongodb.inmemory.js';
 import { createInMemorySeedError } from './mongodb.errors.js';
-import { getMemoryServer } from './mongodb.inmemory.js';
 import {
   requireConfiguredUriAsync,
   validateAllowedNodeEnvAsync,
@@ -16,39 +21,44 @@ import {
 } from './mongodb.validators.js';
 
 const MONGO_RUNTIME_NODE_ENVS = Object.freeze({
-  atlas: new Set<string>(['production', 'staging']),
+  atlas: new Set<string>(['production']),
   localLike: new Set<string>(['development', 'test']),
 });
 
 export interface MongoRuntimeConfig {
-  mode: DbMode;
-  nodeEnv: string;
-  uri: string;
+  readonly mode: DbMode;
+  readonly nodeEnv: string;
+  readonly uri: string;
 }
 
 interface MongoRuntimeContext {
-  configuredUri: string | undefined;
-  nodeEnv: string;
-  purpose: RuntimePurpose;
+  readonly mode: DbMode;
+  readonly configuredUri: string | undefined;
+  readonly nodeEnv: string;
+  readonly purpose: RuntimePurpose;
 }
 
 interface MongoModeStrategy {
-  readonly mode: DbMode;
+  supports(context: MongoRuntimeContext): boolean;
   resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error>;
 }
 
 abstract class BaseMongoModeStrategy implements MongoModeStrategy {
   public constructor(
-    public readonly mode: DbMode,
+    private readonly supportedMode: DbMode,
     private readonly allowedNodeEnvs: Set<string>,
   ) {}
 
+  public supports(context: MongoRuntimeContext): boolean {
+    return context.mode === this.supportedMode;
+  }
+
   protected ensureAllowedNodeEnv(nodeEnv: string): AsyncResult<void, Error> {
-    return validateAllowedNodeEnvAsync(this.mode, nodeEnv, this.allowedNodeEnvs);
+    return validateAllowedNodeEnvAsync(this.supportedMode, nodeEnv, this.allowedNodeEnvs);
   }
 
   protected getRequiredUri(configuredUri: string | undefined): AsyncResult<string, Error> {
-    return requireConfiguredUriAsync(this.mode, configuredUri);
+    return requireConfiguredUriAsync(this.supportedMode, configuredUri);
   }
 
   public abstract resolveUri(context: MongoRuntimeContext): AsyncResult<string, Error>;
@@ -102,27 +112,37 @@ const createLocalMongoModeStrategy = (): MongoModeStrategy => new LocalMongoMode
 class MongoRuntimeStrategyRegistry {
   private static instance: MongoRuntimeStrategyRegistry | undefined;
 
-  private readonly strategies: Record<DbMode, MongoModeStrategy>;
+  private readonly strategies: readonly MongoModeStrategy[];
 
-  private constructor() {
-    this.strategies = {
-      atlas: createAtlasMongoModeStrategy(),
-      inmemory: createInMemoryMongoModeStrategy(),
-      local: createLocalMongoModeStrategy(),
-    };
+  private constructor(strategies: readonly MongoModeStrategy[]) {
+    this.strategies = strategies;
   }
-  private static createMongoRuntimeStrategyRegistry() {
-    return new MongoRuntimeStrategyRegistry();
+
+  private static createMongoRuntimeStrategyRegistry(): MongoRuntimeStrategyRegistry {
+    return new MongoRuntimeStrategyRegistry([
+      createAtlasMongoModeStrategy(),
+      createInMemoryMongoModeStrategy(),
+      createLocalMongoModeStrategy(),
+    ]);
   }
 
   public static getInstance(): MongoRuntimeStrategyRegistry {
     MongoRuntimeStrategyRegistry.instance ??=
       MongoRuntimeStrategyRegistry.createMongoRuntimeStrategyRegistry();
+
     return MongoRuntimeStrategyRegistry.instance;
   }
 
-  public getStrategy(mode: DbMode): MongoModeStrategy {
-    return this.strategies[mode];
+  public resolveStrategy(context: MongoRuntimeContext): Result<MongoModeStrategy, Error> {
+    const strategy = this.strategies.find((candidate) => candidate.supports(context));
+
+    if (strategy) {
+      return errorHandler.ok(strategy);
+    }
+
+    return errorHandler.err<MongoModeStrategy, Error>(
+      createError(`Mongo runtime strategy not found for mode: ${context.mode}`),
+    );
   }
 }
 
@@ -137,19 +157,19 @@ export function resolveMongoRuntime(
   const strategyRegistry = getMongoRuntimeStrategyRegistry();
 
   return errorHandler.fromResult(resolveMongoEnvironment(env, purpose)).andThen((environment) => {
-    const { configuredUri, mode, nodeEnv } = environment;
-    const strategy = strategyRegistry.getStrategy(mode);
-
     const context: MongoRuntimeContext = {
-      configuredUri,
-      nodeEnv,
+      mode: environment.mode,
+      configuredUri: environment.configuredUri,
+      nodeEnv: environment.nodeEnv,
       purpose: environment.purpose,
     };
 
-    return strategy.resolveUri(context).map((uri) => ({
-      mode,
-      nodeEnv,
-      uri,
-    }));
+    return errorHandler.fromResult(strategyRegistry.resolveStrategy(context)).andThen((strategy) =>
+      strategy.resolveUri(context).map((uri) => ({
+        mode: environment.mode,
+        nodeEnv: environment.nodeEnv,
+        uri,
+      })),
+    );
   });
 }

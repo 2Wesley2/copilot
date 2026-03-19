@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import type { AsyncResult } from '../../error/index.js';
-import type { Actor } from './actor.entity.js';
-import { ACTOR_REPOSITORY, type ActorRepository } from './actor.repository.js';
+import type { AsyncResult } from '../../../error/index.js';
+import type { Actor } from '../domain/actor.entity.js';
+import { ACTOR_REPOSITORY, type ActorRepository } from '../domain/actor.repository.js';
 
 @Injectable()
 export class ActorService {

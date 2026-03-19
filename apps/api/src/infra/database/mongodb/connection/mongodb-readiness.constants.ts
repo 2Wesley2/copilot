@@ -1,0 +1,1 @@
+export const MONGO_READINESS_STORE = Symbol('MONGO_READINESS_STORE');

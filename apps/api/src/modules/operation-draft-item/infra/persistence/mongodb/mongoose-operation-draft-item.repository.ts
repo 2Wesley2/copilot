@@ -4,7 +4,7 @@ import type { Model } from 'mongoose';
 import { isNullish } from '@copilot/shared';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_SCHEMAS } from '../../../../../infra/database/mongodb/mongoose/mongoose.schemas.js';
 import type { OperationDraftItem } from '../../../operation-draft-item.entity.js';
 import type { OperationDraftItemRepository } from '../../../operation-draft-item.repository.js';
 import {

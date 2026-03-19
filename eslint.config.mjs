@@ -147,6 +147,8 @@ const webRestrictedImports = [
   },
 ];
 
+const pathResolve = path.resolve(__dirname, 'apps/api/tsconfig.json');
+
 export default defineConfig([
   {
     ignores: [
@@ -220,7 +222,7 @@ export default defineConfig([
     settings: {
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
-          project: ['apps/*/tsconfig.json', 'apps/packages/*/tsconfig.json'],
+          project: [pathResolve],
           alwaysTryTypes: true,
         }),
         createNodeResolver({

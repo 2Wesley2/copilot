@@ -1,5 +1,5 @@
-import { createError } from '../error/error.factory.js';
-import type { DbMode } from './mongodb.environment.js';
+import { createError } from '../../../../error/error.factory.js';
+import type { DbMode } from '../env/mongodb.environment.js';
 
 const MISSING_DB_MODE_ERROR = 'DB_MODE é obrigatório e deve ser um de: inmemory, local, atlas.';
 const INMEMORY_SEED_ERROR =

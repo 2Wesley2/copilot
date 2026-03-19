@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { ACTOR_REPOSITORY } from '../../../actor.repository.js';
+import { ACTOR_REPOSITORY } from '../../../domain/actor.repository.js';
 import { MongooseActorMapper } from './mongoose-actor.mapper.js';
 import { MongooseActorRepositoryAdapter } from './mongoose-actor.repository.js';
 

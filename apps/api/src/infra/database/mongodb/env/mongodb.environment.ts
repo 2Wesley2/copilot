@@ -1,6 +1,7 @@
-import { errorHandler, type Result } from '../error/index.js';
-import { createInvalidDbModeError, createMissingDbModeError } from './mongodb.errors.js';
 import { isNullish } from '@copilot/shared';
+
+import { errorHandler, type Result } from '../../../../error/index.js';
+import { createInvalidDbModeError, createMissingDbModeError } from '../runtime/mongodb.errors.js';
 
 export type DbMode = 'inmemory' | 'local' | 'atlas';
 export type RuntimePurpose = 'application' | 'seed';

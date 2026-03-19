@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import { isNullish } from '@copilot/shared';
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
-import { MONGO_SCHEMAS } from '../../../../../mongodb/mongoose.schemas.js';
+import { MONGO_SCHEMAS } from '../../../../../infra/database/mongodb/mongoose/mongoose.schemas.js';
 import type { DraftDecision } from '../../../draft-decision.entity.js';
 import type { DraftDecisionRepository } from '../../../draft-decision.repository.js';
 import {

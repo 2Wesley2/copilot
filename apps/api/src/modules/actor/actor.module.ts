@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import { ActorService } from './actor.service.js';
-import { ActorController } from './http/actor.controller.js';
+import { ActorService } from './application/actor.service.js';
+import { ActorController } from './presentation/http/actor.controller.js';
 import { ActorMongoPersistenceModule } from './infra/persistence/mongodb/actor-mongodb-persistence.module.js';
 
 @Module({
