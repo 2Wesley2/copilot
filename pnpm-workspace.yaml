@@ -1,7 +1,6 @@
 packages:
   - "apps/*"
   - "apps/packages/*"
-  - "!apps/web"
   - "!apps/packages/contracts"
 
 allowBuilds:
