@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 
-import type { OperationDraftItemService } from '../../application/operation-draft-item.service.js';
+import { OperationDraftItemService } from '../../application/operation-draft-item.service.js';
 
 @Controller('operation-draft-items')
 export class OperationDraftItemController {

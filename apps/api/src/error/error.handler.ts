@@ -57,7 +57,10 @@ export class OkResult<T, E extends Error> implements ResultContract<T, E> {
     return onOk(this.value);
   }
 }
-const createOkResult = <T, E extends Error>(value: T) => new OkResult<T, E>(value);
+
+const createOkResult = <T, E extends Error>(value: T): ResultContract<T, E> => {
+  return new OkResult<T, E>(value);
+};
 
 export class ErrResult<T, E extends Error> implements ResultContract<T, E> {
   public constructor(readonly error: E) {}
@@ -71,14 +74,17 @@ export class ErrResult<T, E extends Error> implements ResultContract<T, E> {
   }
 
   public map<U>(_: (value: T) => U): ResultContract<U, E> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
     return createErrResult<U, E>(this.error);
   }
 
   public andThen<U>(_: (value: T) => ResultContract<U, E>): ResultContract<U, E> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
     return createErrResult<U, E>(this.error);
   }
 
   public mapErr<F extends Error>(fn: (error: E) => F): ResultContract<T, F> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
     return createErrResult<T, F>(fn(this.error));
   }
 
@@ -87,10 +93,13 @@ export class ErrResult<T, E extends Error> implements ResultContract<T, E> {
   }
 }
 
-const createErrResult = <T, E extends Error>(error: E) => new ErrResult<T, E>(error);
+const createErrResult = <T, E extends Error>(error: E): ResultContract<T, E> => {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+  return new ErrResult<T, E>(error);
+};
 
 export class AsyncResultImpl<T, E extends Error> implements AsyncResultContract<T, E> {
-  constructor(private readonly operation: Promise<ResultContract<T, E>>) {}
+  public constructor(private readonly operation: Promise<ResultContract<T, E>>) {}
 
   public map<U>(fn: (value: T) => U): AsyncResultContract<U, E> {
     const nextOperation: Promise<ResultContract<U, E>> = this.operation.then((result) =>
@@ -104,7 +113,11 @@ export class AsyncResultImpl<T, E extends Error> implements AsyncResultContract<
     const nextOperation: Promise<ResultContract<U, E>> = this.operation.then((result) =>
       result.match<Promise<ResultContract<U, E>>>(
         (value) => fn(value).toPromise(),
-        (error) => Promise.resolve(createErrResult<U, E>(error)),
+        (error) =>
+          Promise.resolve(
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+            createErrResult<U, E>(error),
+          ),
       ),
     );
 
@@ -131,11 +144,14 @@ export class AsyncResultImpl<T, E extends Error> implements AsyncResultContract<
   }
 }
 
-const createAsyncResultImpl = <T, E extends Error>(operation: Promise<ResultContract<T, E>>) =>
-  new AsyncResultImpl<T, E>(operation);
+const createAsyncResultImpl = <T, E extends Error>(
+  operation: Promise<ResultContract<T, E>>,
+): AsyncResultContract<T, E> => {
+  return new AsyncResultImpl<T, E>(operation);
+};
 
 export class DefaultErrorHandler implements ErrorHandlerContract {
-  constructor(private readonly errorFactory: ErrorFactory) {}
+  public constructor(private readonly errorFactory: ErrorFactory) {}
 
   public normalize(value: unknown): Error {
     if (value instanceof Error) {
@@ -160,6 +176,7 @@ export class DefaultErrorHandler implements ErrorHandlerContract {
   }
 
   public err<T, E extends Error>(error: E): ResultContract<T, E> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
     return createErrResult<T, E>(error);
   }
 
@@ -168,7 +185,12 @@ export class DefaultErrorHandler implements ErrorHandlerContract {
   }
 
   public errAsync<T, E extends Error>(error: E): AsyncResultContract<T, E> {
-    return createAsyncResultImpl<T, E>(Promise.resolve(createErrResult<T, E>(error)));
+    return createAsyncResultImpl<T, E>(
+      Promise.resolve(
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+        createErrResult<T, E>(error),
+      ),
+    );
   }
 
   public fromPromise<T>(fn: () => Promise<T>): AsyncResultContract<T, Error> {
@@ -176,6 +198,7 @@ export class DefaultErrorHandler implements ErrorHandlerContract {
       .then(fn)
       .then<ResultContract<T, Error>>((value) => createOkResult<T, Error>(value))
       .catch<ResultContract<T, Error>>((cause: unknown) => {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
         return createErrResult<T, Error>(this.normalize(cause));
       });
 

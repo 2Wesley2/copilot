@@ -5,8 +5,10 @@ import {
   type ConversationMessage,
   createConversationMessage,
 } from '../../../domain/conversation-message.entity.js';
-
-import type { ConversationMessageMongoDocument, ConversationMessageMongoPersistence } from './conversation-message.schema.js';
+import type {
+  ConversationMessageMongoDocument,
+  ConversationMessageMongoPersistence,
+} from './conversation-message.schema.js';
 
 export class ConversationMessageMapper {
   public toDomain(document: ConversationMessageMongoDocument): ConversationMessage {
@@ -16,7 +18,7 @@ export class ConversationMessageMapper {
       content: document.content,
       role: document.role,
       sessionId: document.sessionId.toHexString(),
-      ...(isNullish(document.streamed) ? {} : { streamed: document.streamed }),
+      streamed: document.streamed,
       createdAt: document.createdAt,
     });
   }
@@ -28,7 +30,7 @@ export class ConversationMessageMapper {
       content: message.content,
       role: message.role,
       sessionId: new Types.ObjectId(message.sessionId),
-      ...(isNullish(message.streamed) ? {} : { streamed: message.streamed }),
+      streamed: message.streamed ?? false,
       createdAt: message.createdAt,
     };
   }

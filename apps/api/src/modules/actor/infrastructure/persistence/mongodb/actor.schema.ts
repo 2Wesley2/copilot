@@ -9,9 +9,9 @@ import {
 export interface ActorMongoPersistence {
   readonly _id: Types.ObjectId;
   readonly createdAt: Date;
-  readonly email?: string;
-  readonly externalId?: string;
-  readonly name?: string;
+  readonly email?: string | undefined;
+  readonly externalId?: string | undefined;
+  readonly name?: string | undefined;
   readonly updatedAt: Date;
 }
 
@@ -20,22 +20,22 @@ export interface ActorMongoPersistence {
   timestamps: true,
   versionKey: false,
 })
-export class ActorMongoModel {
-  @Prop({ type: String, trim: true, lowercase: true, required: false })
-  public email?: string;
+export class ActorDefinition {
+  @Prop({ type: String, trim: true, lowercase: true, required: false, unique: true })
+  public email?: string | undefined;
 
   @Prop({ type: String, trim: true, unique: true, sparse: true, required: false })
-  public externalId?: string;
+  public externalId?: string | undefined;
 
   @Prop({ type: String, trim: true, required: false })
-  public name?: string;
+  public name?: string | undefined;
+
+  declare public readonly createdAt: Date;
+  declare public readonly updatedAt: Date;
 }
 
-export type ActorMongoDocument = HydratedDocument<ActorMongoPersistence>;
+export type ActorMongoDocument = HydratedDocument<ActorDefinition>;
 
-export const ActorSchema = SchemaFactory.createForClass(ActorMongoModel);
-
-ActorSchema.index({ externalId: 1 }, { unique: true, sparse: true });
-ActorSchema.index({ email: 1 });
+export const actorSchema = SchemaFactory.createForClass(ActorDefinition);
 
 export const ACTOR_MODEL_NAME = MONGO_MODEL_NAMES.actor;

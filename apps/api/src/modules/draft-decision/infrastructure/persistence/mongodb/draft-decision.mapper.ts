@@ -2,8 +2,10 @@ import { isNullish } from '@copilot/shared';
 import { Types } from 'mongoose';
 
 import { createDraftDecision, type DraftDecision } from '../../../domain/draft-decision.entity.js';
-
-import type { DraftDecisionMongoDocument, DraftDecisionMongoPersistence } from './draft-decision.schema.js';
+import type {
+  DraftDecisionMongoDocument,
+  DraftDecisionMongoPersistence,
+} from './draft-decision.schema.js';
 
 export class DraftDecisionMapper {
   public toDomain(document: DraftDecisionMongoDocument): DraftDecision {

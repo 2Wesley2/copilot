@@ -1,28 +1,25 @@
-import { Global, Injectable, Logger, Module, type OnApplicationShutdown } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import {
+  type DynamicModule,
+  Global,
+  Injectable,
+  Logger,
+  Module,
+  type OnApplicationShutdown,
+} from '@nestjs/common';
 import { MongooseModule, type MongooseModuleOptions } from '@nestjs/mongoose';
 
-import { MONGO_READINESS_STORE } from './connection/mongodb-readiness.constants.js';
+import type { MongoDatabaseConfig } from './config/mongodb.config.js';
 import { createMongoConnectionInfrastructure } from './connection/mongodb-connection.policy.js';
-import type { MongoEnv } from './env/mongodb-env.schema.js';
+import { MONGO_READINESS_STORE } from './connection/mongodb-readiness.constants.js';
 import { stopInMemoryMongoServer } from './inmemory/mongodb.inmemory.js';
-import { resolveMongoRuntime } from './runtime/mongodb.runtime.js';
+import type { MongoRuntimeConfig } from './runtime/mongodb.runtime.js';
+
+export const MONGO_DATABASE_CONFIG = Symbol('MONGO_DATABASE_CONFIG');
+export const MONGO_RUNTIME_CONFIG = Symbol('MONGO_RUNTIME_CONFIG');
 
 const mongoConnectionInfrastructure = createMongoConnectionInfrastructure();
 
-async function createMongoMongooseOptions(
-  configService: ConfigService,
-): Promise<MongooseModuleOptions> {
-  const runtime = await resolveMongoRuntime({
-    DATABASE_URL: configService.get<string>('DATABASE_URL'),
-    DB_MODE: configService.get<MongoEnv['DB_MODE']>('DB_MODE'),
-    MONGODB_URL: configService.get<string>('MONGODB_URL'),
-    NODE_ENV: configService.get<MongoEnv['NODE_ENV']>('NODE_ENV'),
-  }).match(
-    (value) => Promise.resolve(value),
-    (error) => Promise.reject(error),
-  );
-
+function createMongoMongooseOptions(runtime: MongoRuntimeConfig): MongooseModuleOptions {
   return {
     uri: runtime.uri,
     maxPoolSize: 10,
@@ -46,22 +43,36 @@ class MongoLifecycleService implements OnApplicationShutdown {
 }
 
 @Global()
-@Module({
-  imports: [
-    ConfigModule,
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: createMongoMongooseOptions,
-    }),
-  ],
-  providers: [
-    MongoLifecycleService,
-    {
-      provide: MONGO_READINESS_STORE,
-      useValue: mongoConnectionInfrastructure.readinessStore,
-    },
-  ],
-  exports: [MONGO_READINESS_STORE],
-})
-export class MongoModule {}
+@Module({})
+export class MongoModule {
+  public static register(params: {
+    readonly databaseConfig: MongoDatabaseConfig;
+    readonly runtimeConfig: MongoRuntimeConfig;
+  }): DynamicModule {
+    return {
+      module: MongoModule,
+      imports: [
+        MongooseModule.forRootAsync({
+          inject: [MONGO_RUNTIME_CONFIG],
+          useFactory: (runtime: MongoRuntimeConfig) => createMongoMongooseOptions(runtime),
+        }),
+      ],
+      providers: [
+        MongoLifecycleService,
+        {
+          provide: MONGO_DATABASE_CONFIG,
+          useValue: params.databaseConfig,
+        },
+        {
+          provide: MONGO_RUNTIME_CONFIG,
+          useValue: params.runtimeConfig,
+        },
+        {
+          provide: MONGO_READINESS_STORE,
+          useValue: mongoConnectionInfrastructure.readinessStore,
+        },
+      ],
+      exports: [MONGO_DATABASE_CONFIG, MONGO_RUNTIME_CONFIG, MONGO_READINESS_STORE],
+    };
+  }
+}

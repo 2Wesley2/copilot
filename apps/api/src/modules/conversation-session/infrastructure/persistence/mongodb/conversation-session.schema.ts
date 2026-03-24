@@ -6,8 +6,10 @@ import {
   MONGO_COLLECTION_NAMES,
   MONGO_MODEL_NAMES,
 } from '../../../../../infra/database/mongodb/mongoose/mongo-model.constants.js';
-
-const SESSION_STATUSES = ['ACTIVE', 'CLOSED', 'ABANDONED'] as const;
+import {
+  CONVERSATION_SESSION_STATUSES,
+  type ConversationSessionStatus,
+} from '../../../domain/conversation-session.entity.js';
 
 export interface ConversationSessionMongoPersistence {
   readonly _id: Types.ObjectId;
@@ -15,7 +17,7 @@ export interface ConversationSessionMongoPersistence {
   readonly createdAt: Date;
   readonly endedAt?: Date | null;
   readonly metadata?: unknown;
-  readonly status: (typeof SESSION_STATUSES)[number];
+  readonly status: ConversationSessionStatus;
   readonly updatedAt: Date;
 }
 
@@ -24,7 +26,7 @@ export interface ConversationSessionMongoPersistence {
   timestamps: true,
   versionKey: false,
 })
-export class ConversationSessionMongoModel {
+export class ConversationSessionDefinition {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: MONGO_MODEL_NAMES.actor,
@@ -34,20 +36,25 @@ export class ConversationSessionMongoModel {
   public actorId!: Types.ObjectId;
 
   @Prop({ type: Date, default: null, index: true })
-  public endedAt?: Date | null;
+  public endedAt?: Date | null | undefined;
 
   @Prop({ type: MongooseSchema.Types.Mixed, required: false })
   public metadata?: unknown;
 
-  @Prop({ type: String, enum: SESSION_STATUSES, default: 'ACTIVE', index: true })
-  public status!: (typeof SESSION_STATUSES)[number];
+  @Prop({
+    type: String,
+    enum: CONVERSATION_SESSION_STATUSES,
+    default: 'ACTIVE',
+    index: true,
+  })
+  public status!: ConversationSessionStatus;
+
+  declare public readonly createdAt: Date;
+  declare public readonly updatedAt: Date;
 }
 
-export type ConversationSessionMongoDocument = HydratedDocument<ConversationSessionMongoPersistence>;
-
-export const ConversationSessionSchema = SchemaFactory.createForClass(ConversationSessionMongoModel);
-ConversationSessionSchema.index({ actorId: 1, createdAt: 1 });
-ConversationSessionSchema.index({ actorId: 1, status: 1, createdAt: 1 });
-ConversationSessionSchema.index({ status: 1, createdAt: 1 });
-
+export type ConversationSessionMongoDocument = HydratedDocument<ConversationSessionDefinition>;
 export const CONVERSATION_SESSION_MODEL_NAME = MONGO_MODEL_NAMES.conversationSession;
+export const conversationSessionSchema = SchemaFactory.createForClass(
+  ConversationSessionDefinition,
+);

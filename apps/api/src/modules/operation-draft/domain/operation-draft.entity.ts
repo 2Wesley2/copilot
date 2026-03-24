@@ -1,4 +1,11 @@
-export type OperationDraftStatus = 'PENDING' | 'CONFIRMED' | 'REJECTED';
+export const OPERATION_DRAFT_STATUSES = [
+  'PENDING',
+  'READY_FOR_REVIEW',
+  'CONFIRMED',
+  'REJECTED',
+] as const;
+
+export type OperationDraftStatus = (typeof OPERATION_DRAFT_STATUSES)[number];
 
 export interface OperationDraftProps {
   readonly id: string;

@@ -2,6 +2,20 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { type AsyncResult, errorHandler } from '../../../../error/index.js';
 
+const DEFAULT_INMEMORY_MONGODB_VERSION = '7.0.24';
+
+function resolveInMemoryMongoVersion(): string {
+  const rawVersion = process.env['MONGOMS_VERSION'];
+
+  if (typeof rawVersion !== 'string') {
+    return DEFAULT_INMEMORY_MONGODB_VERSION;
+  }
+
+  const trimmedVersion = rawVersion.trim();
+
+  return trimmedVersion === '' ? DEFAULT_INMEMORY_MONGODB_VERSION : trimmedVersion;
+}
+
 interface IdleInMemoryMongoServerState {
   readonly status: 'idle';
 }
@@ -74,7 +88,11 @@ class InMemoryMongoServerManager {
   }
 
   private async createMemoryServerPromise(): Promise<MongoMemoryServer> {
-    return MongoMemoryServer.create();
+    return MongoMemoryServer.create({
+      binary: {
+        version: resolveInMemoryMongoVersion(),
+      },
+    });
   }
 
   private getOrStartMemoryServer(): Promise<MongoMemoryServer> {

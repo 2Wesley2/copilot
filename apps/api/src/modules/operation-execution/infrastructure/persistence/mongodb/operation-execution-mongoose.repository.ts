@@ -1,13 +1,17 @@
+import { isNullish } from '@copilot/shared';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import { isNullish } from '@copilot/shared';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
 import type { OperationExecution } from '../../../domain/operation-execution.entity.js';
 import type { OperationExecutionRepository } from '../../../domain/operation-execution.repository.js';
-import { OPERATION_EXECUTION_MODEL_NAME, type OperationExecutionMongoDocument, type OperationExecutionMongoPersistence } from './operation-execution.schema.js';
 import { OperationExecutionMapper } from './operation-execution.mapper.js';
+import {
+  OPERATION_EXECUTION_MODEL_NAME,
+  type OperationExecutionMongoDocument,
+  type OperationExecutionMongoPersistence,
+} from './operation-execution.schema.js';
 
 @Injectable()
 export class OperationExecutionMongooseRepository implements OperationExecutionRepository {

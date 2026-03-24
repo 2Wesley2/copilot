@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 
-import type { DraftDecisionService } from '../../application/draft-decision.service.js';
+import { DraftDecisionService } from '../../application/draft-decision.service.js';
 
 @Controller('draft-decisions')
 export class DraftDecisionController {

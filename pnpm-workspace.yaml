@@ -1,6 +1,8 @@
 packages:
   - "apps/*"
   - "apps/packages/*"
+  - "!apps/web"
+  - "!apps/packages/contracts"
 
 allowBuilds:
   mongodb-memory-server: true

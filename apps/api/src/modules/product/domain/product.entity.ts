@@ -1,7 +1,7 @@
 export interface ProductProps {
   readonly id: string;
   readonly deletedAt?: Date;
-  readonly description?: unknown;
+  readonly description?: string;
   readonly isCurrent?: boolean;
   readonly lineageKey?: string;
   readonly name: string;
@@ -25,7 +25,7 @@ export class Product {
     return this.props.deletedAt;
   }
 
-  public get description(): unknown {
+  public get description(): string | undefined {
     return this.props.description;
   }
 

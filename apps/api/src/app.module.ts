@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { type DynamicModule, Module } from '@nestjs/common';
 
-import { mongoEnvSchema } from './infra/database/mongodb/env/mongodb-env.schema.js';
+import { type MongoDatabaseConfig } from './infra/database/mongodb/config/mongodb.config.js';
 import { MongoModule } from './infra/database/mongodb/mongodb.module.js';
+import type { MongoRuntimeConfig } from './infra/database/mongodb/runtime/mongodb.runtime.js';
 import { HealthModule } from './infra/health/health.module.js';
 import { ActorModule } from './modules/actor/actor.module.js';
 import { AuditEventModule } from './modules/audit-event/audit-event.module.js';
@@ -14,25 +14,30 @@ import { OperationDraftItemModule } from './modules/operation-draft-item/operati
 import { OperationExecutionModule } from './modules/operation-execution/operation-execution.module.js';
 import { ProductModule } from './modules/product/product.module.js';
 
-@Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      cache: true,
-      expandVariables: true,
-      validate: (env) => mongoEnvSchema.parse(env),
-    }),
-    MongoModule,
-    HealthModule,
-    ActorModule,
-    ConversationSessionModule,
-    ConversationMessageModule,
-    OperationDraftModule,
-    OperationDraftItemModule,
-    DraftDecisionModule,
-    OperationExecutionModule,
-    AuditEventModule,
-    ProductModule,
-  ],
-})
-export class AppModule {}
+@Module({})
+export class AppModule {
+  public static register(params: {
+    readonly databaseConfig: MongoDatabaseConfig;
+    readonly runtimeConfig: MongoRuntimeConfig;
+  }): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [
+        MongoModule.register({
+          databaseConfig: params.databaseConfig,
+          runtimeConfig: params.runtimeConfig,
+        }),
+        HealthModule,
+        ActorModule,
+        ConversationSessionModule,
+        ConversationMessageModule,
+        OperationDraftModule,
+        OperationDraftItemModule,
+        DraftDecisionModule,
+        OperationExecutionModule,
+        AuditEventModule,
+        ProductModule,
+      ],
+    };
+  }
+}

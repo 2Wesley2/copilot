@@ -27,39 +27,56 @@ export interface ConversationMessageMongoPersistence {
   timestamps: { createdAt: 'createdAt', updatedAt: false },
   versionKey: false,
 })
-export class ConversationMessageMongoModel {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: MONGO_MODEL_NAMES.actor, index: true, default: null })
-  public actorId?: Types.ObjectId | null;
+export class ConversationMessageDefinition {
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: MONGO_MODEL_NAMES.actor,
+    index: true,
+    default: null,
+  })
+  public actorId?: Types.ObjectId | null | undefined;
 
   @Prop({ type: String, required: true })
   public content!: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: MONGO_MODEL_NAMES.operationDraft, index: true, default: null })
-  public draftId?: Types.ObjectId | null;
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: MONGO_MODEL_NAMES.operationDraft,
+    index: true,
+    default: null,
+  })
+  public draftId?: Types.ObjectId | null | undefined;
 
   @Prop({ type: MongooseSchema.Types.Mixed, required: false })
   public metadata?: unknown;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: MONGO_MODEL_NAMES.operationExecution, index: true, default: null })
-  public operationExecutionId?: Types.ObjectId | null;
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: MONGO_MODEL_NAMES.operationExecution,
+    index: true,
+    default: null,
+  })
+  public operationExecutionId?: Types.ObjectId | null | undefined;
 
   @Prop({ type: String, enum: MESSAGE_ROLES, required: true, index: true })
   public role!: (typeof MESSAGE_ROLES)[number];
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: MONGO_MODEL_NAMES.conversationSession, required: true, index: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: MONGO_MODEL_NAMES.conversationSession,
+    required: true,
+    index: true,
+  })
   public sessionId!: Types.ObjectId;
 
   @Prop({ type: Boolean, default: false })
   public streamed!: boolean;
+
+  declare public readonly createdAt: Date;
 }
 
-export type ConversationMessageMongoDocument = HydratedDocument<ConversationMessageMongoPersistence>;
-
-export const ConversationMessageSchema = SchemaFactory.createForClass(ConversationMessageMongoModel);
-ConversationMessageSchema.index({ sessionId: 1, createdAt: 1 });
-ConversationMessageSchema.index({ actorId: 1, createdAt: 1 });
-ConversationMessageSchema.index({ role: 1, createdAt: 1 });
-ConversationMessageSchema.index({ draftId: 1, createdAt: 1 });
-ConversationMessageSchema.index({ operationExecutionId: 1, createdAt: 1 });
-
+export const conversationMessageSchema = SchemaFactory.createForClass(
+  ConversationMessageDefinition,
+);
+export type ConversationMessageMongoDocument = HydratedDocument<ConversationMessageDefinition>;
 export const CONVERSATION_MESSAGE_MODEL_NAME = MONGO_MODEL_NAMES.conversationMessage;

@@ -3,36 +3,42 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development pnpm exec nest start --watch --entryFile main",
+    "dev": "pnpm run dev:inmemory",
+    "dev:inmemory": "cross-env NODE_ENV=development DB_MODE=inmemory pnpm exec nest start --watch --entryFile main",
+    "dev:local": "cross-env NODE_ENV=development DB_MODE=local pnpm exec nest start --watch --entryFile main",
     "build": "pnpm exec nest build",
     "start": "cross-env NODE_ENV=development pnpm exec nest start --entryFile main",
     "start:test": "cross-env NODE_ENV=test pnpm exec nest start --entryFile main",
     "start:prod": "cross-env NODE_ENV=production node dist/main.js",
     "test": "node --test",
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "typecheck:src": "tsc --noEmit -p tsconfig.json",
     "lint": "pnpm exec eslint src",
-    "db:seed": "cross-env NODE_ENV=development pnpm exec tsx src/mongodb/seed/seed.ts"
+    "lint:debug": "pnpm exec eslint src --debug --no-cache",
+    "db:seed": "cross-env NODE_ENV=development pnpm exec tsx src/mongodb/seed/seed.ts",
+    "clean": "rimraf dist node_modules/.cache/tsconfig.api.tsbuildinfo node_modules/.cache/tsconfig.typecheck.tsbuildinfo"
   },
   "dependencies": {
     "@copilot/shared": "workspace:*",
-    "@nestjs/common": "11.1.16",
+    "@nestjs/common": "11.1.17",
     "@nestjs/config": "4.0.3",
-    "@nestjs/core": "11.1.16",
+    "@nestjs/core": "11.1.17",
     "@nestjs/mongoose": "11.0.4",
-    "@nestjs/platform-express": "11.1.16",
+    "@nestjs/platform-express": "11.1.17",
     "@nestjs/terminus": "11.1.1",
     "dotenv": "17.3.1",
     "mongodb-memory-server": "^11.0.1",
-    "mongoose": "9.3.0",
-    "openai": "6.27.0",
+    "mongoose": "9.3.2",
+    "openai": "6.32.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "zod": "4.3.6"
   },
   "devDependencies": {
     "@nestjs/cli": "11.0.16",
-    "@nestjs/testing": "11.1.16",
+    "@nestjs/testing": "11.1.17",
     "cross-env": "10.1.0",
+    "rimraf": "^6.1.3",
     "tsx": "4.21.0"
   }
 }

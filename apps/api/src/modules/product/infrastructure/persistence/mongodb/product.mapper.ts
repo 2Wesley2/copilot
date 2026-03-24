@@ -2,8 +2,7 @@ import { isNullish } from '@copilot/shared';
 import { Types } from 'mongoose';
 
 import { createProduct, type Product } from '../../../domain/product.entity.js';
-
-import type { ProductMongoDocument, ProductMongoPersistence } from './product.schema.js';
+import type { ProductMongoDocument, ProductMongoWritePersistence } from './product.schema.js';
 
 export class ProductMapper {
   public toDomain(document: ProductMongoDocument): Product {
@@ -26,7 +25,7 @@ export class ProductMapper {
     });
   }
 
-  public toPersistence(product: Product): ProductMongoPersistence {
+  public toPersistence(product: Product): ProductMongoWritePersistence {
     return {
       _id: new Types.ObjectId(product.id),
       ...(isNullish(product.deletedAt) ? {} : { deletedAt: product.deletedAt }),

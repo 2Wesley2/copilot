@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const mongoEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   ENV_PATH: z.string().optional(),
-  DB_MODE: z.enum(['inmemory', 'local', 'atlas']).optional(),
+  DB_MODE: z.enum(['inmemory', 'local', 'atlas']),
   DATABASE_URL: z.string().optional(),
   MONGODB_URL: z.string().optional(),
 });

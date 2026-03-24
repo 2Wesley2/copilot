@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 
-import type { AuditEventService } from '../../application/audit-event.service.js';
+import { AuditEventService } from '../../application/audit-event.service.js';
 
 @Controller('audit-events')
 export class AuditEventController {

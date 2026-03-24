@@ -6,8 +6,12 @@ import type { Model } from 'mongoose';
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
 import type { AuditEvent } from '../../../domain/audit-event.entity.js';
 import type { AuditEventRepository } from '../../../domain/audit-event.repository.js';
-import { AUDIT_EVENT_MODEL_NAME, type AuditEventMongoDocument, type AuditEventMongoPersistence } from './audit-event.schema.js';
 import { AuditEventMapper } from './audit-event.mapper.js';
+import {
+  AUDIT_EVENT_MODEL_NAME,
+  type AuditEventMongoDocument,
+  type AuditEventMongoPersistence,
+} from './audit-event.schema.js';
 
 @Injectable()
 export class AuditEventMongooseRepository implements AuditEventRepository {

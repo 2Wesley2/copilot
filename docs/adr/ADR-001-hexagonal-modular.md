@@ -255,7 +255,6 @@ Por isso, foi adotada uma arquitetura **hexagonal/modular**, na qual:
 
 Em síntese, a arquitetura foi escolhida para garantir que a aplicação seja natural no uso, mas rigorosa no controle operacional.
 
-
 ---
 
 ## Alinhamento com o modelo de entidades e com a fronteira das camadas do Nest

@@ -2,12 +2,19 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { OPERATION_EXECUTION_REPOSITORY } from '../../../domain/operation-execution.repository.js';
-import { OPERATION_EXECUTION_MODEL_NAME, OperationExecutionSchema } from './operation-execution.schema.js';
 import { OperationExecutionMapper } from './operation-execution.mapper.js';
+import {
+  OPERATION_EXECUTION_MODEL_NAME,
+  operationExecutionSchema,
+} from './operation-execution.schema.js';
 import { OperationExecutionMongooseRepository } from './operation-execution-mongoose.repository.js';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: OPERATION_EXECUTION_MODEL_NAME, schema: OperationExecutionSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: OPERATION_EXECUTION_MODEL_NAME, schema: operationExecutionSchema },
+    ]),
+  ],
   providers: [
     OperationExecutionMapper,
     OperationExecutionMongooseRepository,

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "dev:inmemory": {
+      "dependsOn": ["@copilot/shared#build"],
+      "with": ["@copilot/shared#dev"]
+    },
+    "dev:local": {
+      "dependsOn": ["@copilot/shared#build"],
+      "with": ["@copilot/shared#dev"]
+    }
+  }
+}

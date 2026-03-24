@@ -2,7 +2,6 @@ import { isNullish } from '@copilot/shared';
 import { Types } from 'mongoose';
 
 import { type Actor, createActor } from '../../../domain/actor.entity.js';
-
 import type { ActorMongoDocument, ActorMongoPersistence } from './actor.schema.js';
 
 export class ActorMapper {

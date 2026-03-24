@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 
-import type { ProductService } from '../../application/product.service.js';
+import { ProductService } from '../../application/product.service.js';
 
 @Controller('products')
 export class ProductController {

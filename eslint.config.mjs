@@ -44,6 +44,11 @@ const __dirname = path.dirname(__filename);
 
 const jsTsExtensions = ['.js', '.mjs', '.cjs', '.jsx', '.ts', '.mts', '.cts', '.tsx'];
 
+const eslintTsProjects = [
+  path.resolve(__dirname, 'apps/api/tsconfig.eslint.json'),
+  path.resolve(__dirname, 'apps/packages/shared/tsconfig.json'),
+];
+
 const typeRestrictionSelectors = [
   {
     selector: 'TSSatisfiesExpression',
@@ -132,22 +137,21 @@ const repositoryRestrictedImports = [
 const contractRestrictedImports = [
   {
     group: ['apps/api/**'],
-    message: 'packages/contracts não pode depender da aplicação da API.',
+    message: 'apps/packages/contracts não pode depender da aplicação da API.',
   },
   {
     group: ['apps/web/**'],
-    message: 'packages/contracts não pode depender da aplicação web.',
+    message: 'apps/packages/contracts não pode depender da aplicação web.',
   },
 ];
 
 const webRestrictedImports = [
   {
     group: ['apps/api/**'],
-    message: 'A web não deve importar a API diretamente; compartilhe tipos em packages/contracts.',
+    message:
+      'A web não deve importar a API diretamente; compartilhe tipos em apps/packages/contracts.',
   },
 ];
-
-const pathResolve = path.resolve(__dirname, 'apps/api/tsconfig.json');
 
 export default defineConfig([
   {
@@ -162,6 +166,8 @@ export default defineConfig([
       '**/coverage/**',
       '**/.turbo/**',
       '**/*.d.ts',
+      'apps/web/**',
+      'apps/packages/contracts/**',
     ],
   },
 
@@ -182,7 +188,7 @@ export default defineConfig([
   },
 
   {
-    files: ['apps/**/*.{ts,tsx,mts,cts}', 'packages/**/*.{ts,tsx,mts,cts}'],
+    files: ['apps/**/*.{ts,tsx,mts,cts}'],
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -210,7 +216,7 @@ export default defineConfig([
   },
 
   {
-    files: ['apps/**/*.{ts,tsx,js,jsx,mjs,cjs}', 'packages/**/*.{ts,tsx,js,jsx,mjs,cjs}'],
+    files: ['apps/**/*.{ts,tsx,js,jsx,mjs,cjs}'],
     plugins: {
       boundaries,
       'import-x': importXPlugin,
@@ -222,15 +228,21 @@ export default defineConfig([
     settings: {
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
-          project: [pathResolve],
+          project: eslintTsProjects,
           alwaysTryTypes: true,
         }),
         createNodeResolver({
           extensions: jsTsExtensions,
         }),
       ],
-      'boundaries/include': ['apps/**/*', 'packages/**/*'],
-      'boundaries/ignore': ['**/*.spec.*', '**/*.test.*', 'apps/api/test/**/*'],
+      'boundaries/include': ['apps/**/*'],
+      'boundaries/ignore': [
+        '**/*.spec.*',
+        '**/*.test.*',
+        'apps/api/test/**/*',
+        'apps/web/**/*',
+        'apps/packages/contracts/**/*',
+      ],
       'boundaries/elements': [
         {
           type: 'api-controller',
@@ -585,7 +597,7 @@ export default defineConfig([
   },
 
   {
-    files: ['apps/**/*.{ts,tsx,mts,cts}', 'packages/**/*.{ts,tsx,mts,cts}'],
+    files: ['apps/**/*.{ts,tsx,mts,cts}'],
     rules: {
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
@@ -737,7 +749,7 @@ export default defineConfig([
   },
 
   {
-    files: ['packages/contracts/**/*.{ts,tsx,mts,cts}'],
+    files: ['apps/packages/contracts/**/*.{ts,tsx,mts,cts}'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
@@ -761,7 +773,7 @@ export default defineConfig([
   },
 
   {
-    files: ['apps/**/*.{js,jsx,mjs,cjs}', 'packages/**/*.{js,jsx,mjs,cjs}'],
+    files: ['apps/**/*.{js,jsx,mjs,cjs}'],
     rules: {
       '@typescript-eslint/no-unused-expressions': 'off',
       'no-unused-expressions': [

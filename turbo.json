@@ -1,52 +1,52 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    "package.json",
-    "pnpm-lock.yaml",
-    "pnpm-workspace.yaml",
-    "turbo.json",
-    "eslint.config.mjs",
-    "prettier.config.mjs",
-    "tsconfig.json",
-    "tsconfig.base.json",
-    "apps/*/tsconfig.json",
-    "apps/packages/*/tsconfig.json"
-  ],
+  "ui": "tui",
+  "globalDependencies": ["pnpm-workspace.yaml", "tsconfig.base.json"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": ["dist/**", ".next/**", "build/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["^dev"]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
+      "outputs": ["dist/**", "build/**"],
+      "outputLogs": "new-only"
     },
     "lint": {
       "dependsOn": ["^lint"],
-      "inputs": ["$TURBO_DEFAULT$", "eslint.config.mjs", "prettier.config.mjs"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/eslint.config.mjs",
+        "$TURBO_ROOT$/prettier.config.mjs"
+      ],
       "outputs": []
     },
     "typecheck": {
       "dependsOn": ["^typecheck"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "tsconfig.json",
-        "tsconfig.base.json",
-        "apps/*/tsconfig.json",
-        "apps/packages/*/tsconfig.json"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
       "outputs": []
     },
     "test": {
       "dependsOn": ["build", "^build"],
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": ["coverage/**"]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
+      "env": ["NODE_ENV", "DB_MODE", "ENV_PATH", "DATABASE_URL", "MONGODB_URL"],
+      "outputs": ["coverage/**"],
+      "outputLogs": "new-only"
     },
-    "format": {
-      "inputs": ["$TURBO_DEFAULT$", "prettier.config.mjs"],
-      "outputs": []
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "interruptible": true
+    },
+    "dev:inmemory": {
+      "cache": false,
+      "persistent": true,
+      "interruptible": true
+    },
+    "dev:local": {
+      "cache": false,
+      "persistent": true,
+      "interruptible": true
+    },
+    "clean": {
+      "cache": false
     }
   }
 }

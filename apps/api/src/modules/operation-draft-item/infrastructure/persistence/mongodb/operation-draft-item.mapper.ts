@@ -1,12 +1,12 @@
 import { isNullish } from '@copilot/shared';
 import { Types } from 'mongoose';
 
-import {
-  createOperationDraftItem,
-  type OperationDraftItem,
-} from '../../../domain/operation-draft-item.entity.js';
-
-import type { OperationDraftItemMongoDocument, OperationDraftItemMongoPersistence } from './operation-draft-item.schema.js';
+import type { OperationDraftItem } from '../../../domain/operation-draft-item.entity.js';
+import { createOperationDraftItem } from '../../../domain/operation-draft-item.entity.js';
+import type {
+  OperationDraftItemMongoDocument,
+  OperationDraftItemMongoPersistence,
+} from './operation-draft-item.schema.js';
 
 export class OperationDraftItemMapper {
   public toDomain(document: OperationDraftItemMongoDocument): OperationDraftItem {
@@ -18,6 +18,8 @@ export class OperationDraftItemMapper {
       position: document.position,
       ...(isNullish(document.productId) ? {} : { productId: document.productId.toHexString() }),
       createdAt: document.createdAt,
+      updatedAt: document.updatedAt,
+      validationStatus: document.validationStatus,
     });
   }
 
@@ -30,6 +32,8 @@ export class OperationDraftItemMapper {
       position: item.position,
       ...(isNullish(item.productId) ? {} : { productId: new Types.ObjectId(item.productId) }),
       createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      validationStatus: item.validationStatus,
     };
   }
 }

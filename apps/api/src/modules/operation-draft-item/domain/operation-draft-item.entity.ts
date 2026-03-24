@@ -1,4 +1,16 @@
-export type OperationDraftItemAction = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE';
+export const OPERATION_DRAFT_ITEM_ACTIONS = ['CREATE', 'READ', 'UPDATE', 'DELETE'] as const;
+
+export type OperationDraftItemAction = (typeof OPERATION_DRAFT_ITEM_ACTIONS)[number];
+
+export const OPERATION_DRAFT_ITEM_VALIDATION_STATUSES = [
+  'PENDING',
+  'VALID',
+  'INVALID',
+  'REQUIRES_ATTENTION',
+] as const;
+
+export type OperationDraftItemValidationStatus =
+  (typeof OPERATION_DRAFT_ITEM_VALIDATION_STATUSES)[number];
 
 export interface OperationDraftItemProps {
   readonly id: string;
@@ -8,6 +20,8 @@ export interface OperationDraftItemProps {
   readonly position: number;
   readonly productId?: string;
   readonly createdAt: Date;
+  readonly updatedAt: Date;
+  readonly validationStatus: OperationDraftItemValidationStatus;
 }
 
 export class OperationDraftItem {
@@ -39,6 +53,14 @@ export class OperationDraftItem {
 
   public get createdAt(): Date {
     return this.props.createdAt;
+  }
+
+  public get updatedAt(): Date {
+    return this.props.updatedAt;
+  }
+
+  public get validationStatus(): OperationDraftItemValidationStatus {
+    return this.props.validationStatus;
   }
 }
 

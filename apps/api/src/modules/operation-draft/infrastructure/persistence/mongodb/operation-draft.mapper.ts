@@ -1,8 +1,11 @@
 import { Types } from 'mongoose';
 
-import { createOperationDraft, type OperationDraft } from '../../../domain/operation-draft.entity.js';
-
-import type { OperationDraftMongoDocument, OperationDraftMongoPersistence } from './operation-draft.schema.js';
+import type { OperationDraft } from '../../../domain/operation-draft.entity.js';
+import { createOperationDraft } from '../../../domain/operation-draft.entity.js';
+import type {
+  OperationDraftMongoDocument,
+  OperationDraftMongoPersistence,
+} from './operation-draft.schema.js';
 
 export class OperationDraftMapper {
   public toDomain(document: OperationDraftMongoDocument): OperationDraft {

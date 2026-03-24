@@ -1,3 +1,4 @@
+import { isNullish } from '@copilot/shared';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
@@ -5,9 +6,12 @@ import type { Model } from 'mongoose';
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
 import type { Product } from '../../../domain/product.entity.js';
 import type { ProductRepository } from '../../../domain/product.repository.js';
-import { PRODUCT_MODEL_NAME, type ProductMongoDocument, type ProductMongoPersistence } from './product.schema.js';
 import { ProductMapper } from './product.mapper.js';
-import { isNullish } from '@copilot/shared';
+import {
+  PRODUCT_MODEL_NAME,
+  type ProductMongoDocument,
+  type ProductMongoPersistence,
+} from './product.schema.js';
 
 @Injectable()
 export class ProductMongooseRepository implements ProductRepository {

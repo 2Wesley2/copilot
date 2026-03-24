@@ -6,8 +6,8 @@
     "lib": ["ES2022"],
     "rootDir": "./src",
     "outDir": "./dist",
+    "incremental": true,
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.api.tsbuildinfo",
-    "declaration": false,
     "declarationMap": false,
     "sourceMap": true,
     "inlineSources": false,
@@ -17,7 +17,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "references": [{ "path": "../packages/shared" }],
   "include": ["src/**/*.ts"],
   "exclude": ["dist", "node_modules", "test"]
 }

@@ -6,8 +6,12 @@ import type { Model } from 'mongoose';
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
 import type { Actor } from '../../../domain/actor.entity.js';
 import type { ActorRepository } from '../../../domain/actor.repository.js';
-import { ACTOR_MODEL_NAME, type ActorMongoDocument, type ActorMongoPersistence } from './actor.schema.js';
 import { ActorMapper } from './actor.mapper.js';
+import {
+  ACTOR_MODEL_NAME,
+  type ActorMongoDocument,
+  type ActorMongoPersistence,
+} from './actor.schema.js';
 
 @Injectable()
 export class ActorMongooseRepository implements ActorRepository {

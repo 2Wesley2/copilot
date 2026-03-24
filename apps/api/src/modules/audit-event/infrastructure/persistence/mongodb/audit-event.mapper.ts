@@ -2,7 +2,6 @@ import { isNullish } from '@copilot/shared';
 import { Types } from 'mongoose';
 
 import { type AuditEvent, createAuditEvent } from '../../../domain/audit-event.entity.js';
-
 import type { AuditEventMongoDocument, AuditEventMongoPersistence } from './audit-event.schema.js';
 
 export class AuditEventMapper {
@@ -19,7 +18,7 @@ export class AuditEventMapper {
         : { operationExecutionId: document.operationExecutionId.toHexString() }),
       ...(isNullish(document.payload) ? {} : { payload: document.payload }),
       ...(isNullish(document.sessionId) ? {} : { sessionId: document.sessionId.toHexString() }),
-      createdAt: document.createdAt,
+      createdAt: document.occurredAt,
     });
   }
 
@@ -36,7 +35,7 @@ export class AuditEventMapper {
         : { operationExecutionId: new Types.ObjectId(event.operationExecutionId) }),
       ...(isNullish(event.payload) ? {} : { payload: event.payload }),
       ...(isNullish(event.sessionId) ? {} : { sessionId: new Types.ObjectId(event.sessionId) }),
-      createdAt: event.createdAt,
+      occurredAt: event.createdAt,
     };
   }
 }

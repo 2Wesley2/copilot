@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import { isNullish } from '@copilot/shared';
-import mongoose, { type Model, type Types } from 'mongoose';
+import mongoose, { type Types } from 'mongoose';
 
 import {
   type AsyncResult,
@@ -9,73 +9,67 @@ import {
   errorHandler,
   type Result,
 } from '../../../../error/index.js';
-import { stopInMemoryMongoServer } from '../inmemory/mongodb.inmemory.js';
-import { MONGO_MODEL_NAMES } from '../mongoose/mongo-model.constants.js';
-
 import {
-  ActorSchema,
   type ActorMongoDocument as ActorDocument,
-  type ActorMongoPersistence as Actor,
+  actorSchema,
 } from '../../../../modules/actor/infrastructure/persistence/mongodb/actor.schema.js';
 import {
-  AuditEventSchema,
   type AuditEventMongoDocument as AuditEventDocument,
-  type AuditEventMongoPersistence as AuditEvent,
+  auditEventSchema,
 } from '../../../../modules/audit-event/infrastructure/persistence/mongodb/audit-event.schema.js';
 import {
-  ConversationMessageSchema,
   type ConversationMessageMongoDocument as ConversationMessageDocument,
-  type ConversationMessageMongoPersistence as ConversationMessage,
+  conversationMessageSchema,
 } from '../../../../modules/conversation-message/infrastructure/persistence/mongodb/conversation-message.schema.js';
 import {
-  ConversationSessionSchema,
   type ConversationSessionMongoDocument as ConversationSessionDocument,
-  type ConversationSessionMongoPersistence as ConversationSession,
+  conversationSessionSchema,
 } from '../../../../modules/conversation-session/infrastructure/persistence/mongodb/conversation-session.schema.js';
 import {
-  DraftDecisionSchema,
   type DraftDecisionMongoDocument as DraftDecisionDocument,
-  type DraftDecisionMongoPersistence as DraftDecision,
+  draftDecisionSchema,
 } from '../../../../modules/draft-decision/infrastructure/persistence/mongodb/draft-decision.schema.js';
 import {
-  OperationDraftSchema,
   type OperationDraftMongoDocument as OperationDraftDocument,
-  type OperationDraftMongoPersistence as OperationDraft,
+  operationDraftSchema,
 } from '../../../../modules/operation-draft/infrastructure/persistence/mongodb/operation-draft.schema.js';
 import {
-  OperationDraftItemSchema,
   type OperationDraftItemMongoDocument as OperationDraftItemDocument,
-  type OperationDraftItemMongoPersistence as OperationDraftItem,
+  operationDraftItemSchema,
 } from '../../../../modules/operation-draft-item/infrastructure/persistence/mongodb/operation-draft-item.schema.js';
 import {
-  OperationExecutionSchema,
   type OperationExecutionMongoDocument as OperationExecutionDocument,
-  type OperationExecutionMongoPersistence as OperationExecution,
+  operationExecutionSchema,
 } from '../../../../modules/operation-execution/infrastructure/persistence/mongodb/operation-execution.schema.js';
 import {
-  ProductSchema,
   type ProductMongoDocument as ProductDocument,
-  type ProductMongoPersistence as Product,
+  productSchema,
 } from '../../../../modules/product/infrastructure/persistence/mongodb/product.schema.js';
+import { stopInMemoryMongoServer } from '../inmemory/mongodb.inmemory.js';
+import { MONGO_MODEL_NAMES } from '../mongoose/mongo-model.constants.js';
 import { resolveMongoRuntime } from '../runtime/mongodb.runtime.js';
 
-const actorModel: Model<Actor> = mongoose.model<Actor>(MONGO_MODEL_NAMES.actor, ActorSchema);
-
-const conversationSessionModel: Model<ConversationSession> = mongoose.model<ConversationSession>(MONGO_MODEL_NAMES.conversationSession, ConversationSessionSchema);
-
-const conversationMessageModel: Model<ConversationMessage> = mongoose.model<ConversationMessage>(MONGO_MODEL_NAMES.conversationMessage, ConversationMessageSchema);
-
-const operationDraftModel: Model<OperationDraft> = mongoose.model<OperationDraft>(MONGO_MODEL_NAMES.operationDraft, OperationDraftSchema);
-
-const operationDraftItemModel: Model<OperationDraftItem> = mongoose.model<OperationDraftItem>(MONGO_MODEL_NAMES.operationDraftItem, OperationDraftItemSchema);
-
-const draftDecisionModel: Model<DraftDecision> = mongoose.model<DraftDecision>(MONGO_MODEL_NAMES.draftDecision, DraftDecisionSchema);
-
-const operationExecutionModel: Model<OperationExecution> = mongoose.model<OperationExecution>(MONGO_MODEL_NAMES.operationExecution, OperationExecutionSchema);
-
-const auditEventModel: Model<AuditEvent> = mongoose.model<AuditEvent>(MONGO_MODEL_NAMES.auditEvent, AuditEventSchema);
-
-const productModel: Model<Product> = mongoose.model<Product>(MONGO_MODEL_NAMES.product, ProductSchema);
+const actorModel = mongoose.model(MONGO_MODEL_NAMES.actor, actorSchema);
+const conversationSessionModel = mongoose.model(
+  MONGO_MODEL_NAMES.conversationSession,
+  conversationSessionSchema,
+);
+const conversationMessageModel = mongoose.model(
+  MONGO_MODEL_NAMES.conversationMessage,
+  conversationMessageSchema,
+);
+const operationDraftModel = mongoose.model(MONGO_MODEL_NAMES.operationDraft, operationDraftSchema);
+const operationDraftItemModel = mongoose.model(
+  MONGO_MODEL_NAMES.operationDraftItem,
+  operationDraftItemSchema,
+);
+const draftDecisionModel = mongoose.model(MONGO_MODEL_NAMES.draftDecision, draftDecisionSchema);
+const operationExecutionModel = mongoose.model(
+  MONGO_MODEL_NAMES.operationExecution,
+  operationExecutionSchema,
+);
+const auditEventModel = mongoose.model(MONGO_MODEL_NAMES.auditEvent, auditEventSchema);
+const productModel = mongoose.model(MONGO_MODEL_NAMES.product, productSchema);
 
 const SEED_KEYS = Object.freeze({
   actorExternalId: 'local-dev-actor-1',
@@ -484,25 +478,26 @@ function seedLocalDevelopmentData(): AsyncResult<SeedSummary, Error> {
           seedOperationDraft(actor._id, session._id, product._id).andThen((draft) =>
             seedOperationDraftItem(draft._id, product._id).andThen((draftItem) =>
               seedDraftDecision(actor._id, draft._id).andThen((draftDecision) =>
-                seedOperationExecution(draft._id, draftDecision._id, product._id).andThen((operationExecution) =>
-                  seedAuditEvent(
-                    actor._id,
-                    draft._id,
-                    session._id,
-                    operationExecution._id,
-                    product._id,
-                  ).map((auditEvent) => ({
-                    actorId: actor._id.toHexString(),
-                    sessionId: session._id.toHexString(),
-                    userMessageId: messages.userMessage._id.toHexString(),
-                    assistantMessageId: messages.assistantMessage._id.toHexString(),
-                    productId: product._id.toHexString(),
-                    draftId: draft._id.toHexString(),
-                    draftItemId: draftItem._id.toHexString(),
-                    draftDecisionId: draftDecision._id.toHexString(),
-                    operationExecutionId: operationExecution._id.toHexString(),
-                    auditEventId: auditEvent._id.toHexString(),
-                  })),
+                seedOperationExecution(draft._id, draftDecision._id, product._id).andThen(
+                  (operationExecution) =>
+                    seedAuditEvent(
+                      actor._id,
+                      draft._id,
+                      session._id,
+                      operationExecution._id,
+                      product._id,
+                    ).map((auditEvent) => ({
+                      actorId: actor._id.toHexString(),
+                      sessionId: session._id.toHexString(),
+                      userMessageId: messages.userMessage._id.toHexString(),
+                      assistantMessageId: messages.assistantMessage._id.toHexString(),
+                      productId: product._id.toHexString(),
+                      draftId: draft._id.toHexString(),
+                      draftItemId: draftItem._id.toHexString(),
+                      draftDecisionId: draftDecision._id.toHexString(),
+                      operationExecutionId: operationExecution._id.toHexString(),
+                      auditEventId: auditEvent._id.toHexString(),
+                    })),
                 ),
               ),
             ),

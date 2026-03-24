@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 
-import { OperationDraftController } from './presentation/http/operation-draft.controller.js';
-import { OperationDraftMongoPersistenceModule } from './infrastructure/persistence/mongodb/operation-draft-mongodb-persistence.module.js';
 import { OperationDraftService } from './application/operation-draft.service.js';
+import { OperationDraftMongoPersistenceModule } from './infrastructure/persistence/mongodb/operation-draft-mongodb-persistence.module.js';
+import { OperationDraftController } from './presentation/http/operation-draft.controller.js';
 
 @Module({
   imports: [OperationDraftMongoPersistenceModule],

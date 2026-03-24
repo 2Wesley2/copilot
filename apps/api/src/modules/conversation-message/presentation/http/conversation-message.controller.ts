@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 
-import type { ConversationMessageService } from '../../application/conversation-message.service.js';
+import { ConversationMessageService } from '../../application/conversation-message.service.js';
 
 @Controller('conversation-messages')
 export class ConversationMessageController {

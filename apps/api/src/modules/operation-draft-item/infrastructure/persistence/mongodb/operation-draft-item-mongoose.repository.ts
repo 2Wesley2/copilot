@@ -1,13 +1,17 @@
+import { isNullish } from '@copilot/shared';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import { isNullish } from '@copilot/shared';
 
 import { type AsyncResult, errorHandler } from '../../../../../error/index.js';
 import type { OperationDraftItem } from '../../../domain/operation-draft-item.entity.js';
 import type { OperationDraftItemRepository } from '../../../domain/operation-draft-item.repository.js';
-import { OPERATION_DRAFT_ITEM_MODEL_NAME, type OperationDraftItemMongoDocument, type OperationDraftItemMongoPersistence } from './operation-draft-item.schema.js';
 import { OperationDraftItemMapper } from './operation-draft-item.mapper.js';
+import {
+  OPERATION_DRAFT_ITEM_MODEL_NAME,
+  type OperationDraftItemMongoDocument,
+  type OperationDraftItemMongoPersistence,
+} from './operation-draft-item.schema.js';
 
 @Injectable()
 export class OperationDraftItemMongooseRepository implements OperationDraftItemRepository {
