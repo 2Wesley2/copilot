@@ -47,6 +47,7 @@ const jsTsExtensions = ['.js', '.mjs', '.cjs', '.jsx', '.ts', '.mts', '.cts', '.
 const eslintTsProjects = [
   path.resolve(__dirname, 'apps/api/tsconfig.eslint.json'),
   path.resolve(__dirname, 'apps/packages/shared/tsconfig.json'),
+  path.resolve(__dirname, 'apps/web/tsconfig.json'),
 ];
 
 const typeRestrictionSelectors = [
@@ -166,7 +167,6 @@ export default defineConfig([
       '**/coverage/**',
       '**/.turbo/**',
       '**/*.d.ts',
-      'apps/web/**',
       'apps/packages/contracts/**',
     ],
   },
@@ -240,7 +240,6 @@ export default defineConfig([
         '**/*.spec.*',
         '**/*.test.*',
         'apps/api/test/**/*',
-        'apps/web/**/*',
         'apps/packages/contracts/**/*',
       ],
       'boundaries/elements': [
