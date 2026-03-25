@@ -5,6 +5,7 @@
     "dev": "pnpm run dev:api:inmemory",
     "dev:api:inmemory": "pnpm --filter @copilot/api clean && turbo run dev:inmemory --filter=@copilot/api",
     "dev:api:local": "pnpm --filter @copilot/api clean && turbo run dev:local --filter=@copilot/api",
+    "dev:web": "pnpm --filter @copilot/web clean && turbo run dev --filter=@copilot/web",
     "build": "turbo run build",
     "lint:api:debug": "pnpm --filter @copilot/api exec eslint src --debug --no-cache",
     "lint": "turbo run lint",

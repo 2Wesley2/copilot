@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm exec next dev",
+    "dev": "pnpm exec next dev --webpack",
     "build": "pnpm exec next build",
     "start": "pnpm exec next start",
     "typegen": "pnpm exec next typegen .",
