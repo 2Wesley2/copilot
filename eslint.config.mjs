@@ -44,11 +44,10 @@ const __dirname = path.dirname(__filename);
 
 const jsTsExtensions = ['.js', '.mjs', '.cjs', '.jsx', '.ts', '.mts', '.cts', '.tsx'];
 
-const eslintTsProjects = [
-  path.resolve(__dirname, 'apps/api/tsconfig.eslint.json'),
-  path.resolve(__dirname, 'apps/packages/shared/tsconfig.json'),
-  path.resolve(__dirname, 'apps/web/tsconfig.json'),
-];
+const apiTsProject = path.resolve(__dirname, 'apps/api/tsconfig.eslint.json');
+const sharedTsProject = path.resolve(__dirname, 'apps/packages/shared/tsconfig.json');
+const webTsProject = path.resolve(__dirname, 'apps/web/tsconfig.json');
+const webRootDir = path.resolve(__dirname, 'apps/web');
 
 const typeRestrictionSelectors = [
   {
@@ -204,6 +203,17 @@ export default defineConfig([
         ...globals.node,
       },
     },
+    settings: {
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          project: [apiTsProject],
+          alwaysTryTypes: true,
+        }),
+        createNodeResolver({
+          extensions: jsTsExtensions,
+        }),
+      ],
+    },
   },
 
   {
@@ -212,6 +222,35 @@ export default defineConfig([
       globals: {
         ...globals.browser,
       },
+    },
+    settings: {
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          project: webTsProject,
+          alwaysTryTypes: true,
+        }),
+        createNodeResolver({
+          extensions: jsTsExtensions,
+        }),
+      ],
+      next: {
+        rootDir: webRootDir,
+      },
+    },
+  },
+
+  {
+    files: ['apps/packages/shared/**/*.{ts,tsx,js,jsx,mjs,cjs}'],
+    settings: {
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          project: [sharedTsProject],
+          alwaysTryTypes: true,
+        }),
+        createNodeResolver({
+          extensions: jsTsExtensions,
+        }),
+      ],
     },
   },
 
@@ -226,15 +265,6 @@ export default defineConfig([
       unicorn,
     },
     settings: {
-      'import-x/resolver-next': [
-        createTypeScriptImportResolver({
-          project: eslintTsProjects,
-          alwaysTryTypes: true,
-        }),
-        createNodeResolver({
-          extensions: jsTsExtensions,
-        }),
-      ],
       'boundaries/include': ['apps/**/*'],
       'boundaries/ignore': [
         '**/*.spec.*',
@@ -584,14 +614,10 @@ export default defineConfig([
       'react-hooks': reactHooksPlugin,
       '@next/next': nextESLintPlugin,
     },
-    settings: {
-      next: {
-        rootDir: 'apps/web/',
-      },
-    },
     rules: {
       ...reactHooks.configs.recommended.rules,
       ...nextPlugin.configs.recommended.rules,
+      '@next/next/no-html-link-for-pages': 'off',
     },
   },
 

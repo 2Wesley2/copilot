@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "dev": {
+      "dependsOn": ["@copilot/shared#build"],
+      "with": ["@copilot/shared#dev"]
+    }
+  }
+}

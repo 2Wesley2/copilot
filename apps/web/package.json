@@ -6,16 +6,22 @@
     "dev": "pnpm exec next dev",
     "build": "pnpm exec next build",
     "start": "pnpm exec next start",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "pnpm exec eslint src"
+    "typegen": "pnpm exec next typegen .",
+    "typecheck": "pnpm run typegen && tsc --noEmit -p tsconfig.typecheck.json",
+    "typecheck:src": "tsc --noEmit -p tsconfig.json",
+    "lint": "pnpm exec eslint .",
+    "lint:debug": "pnpm exec eslint . --debug --no-cache",
+    "clean": "rimraf .next node_modules/.cache/tsconfig.web.tsbuildinfo node_modules/.cache/tsconfig.typecheck.web.tsbuildinfo"
   },
   "dependencies": {
+    "@copilot/shared": "workspace:*",
     "next": "16.2.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3"
+    "@types/react-dom": "19.2.3",
+    "rimraf": "^6.1.3"
   }
 }
